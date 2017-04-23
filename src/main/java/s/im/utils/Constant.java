@@ -17,4 +17,12 @@ public class Constant {
     public static final int NETTY_TIMEOUT_IN_SECONDS = 100;
 
     public static final int NETTY_CLIENT_RECONNECT_DELAY = 3;//3 sec
+
+    public static final int SERVER_READ_IDEL_TIME_OUT = 5; // 读超时
+    public static final int SERVER_WRITE_IDEL_TIME_OUT = 0;// 写超时
+    public static final int SERVER_ALL_IDEL_TIME_OUT = 0; // 所有超时
+
+    public static final int CLIENT_READ_IDEL_TIME_OUT = 0; // 读超时
+    public static final int CLIENT_WRITE_IDEL_TIME_OUT = 4;// 写超时
+    public static final int CLIENT_ALL_IDEL_TIME_OUT = 0; // 所有超时
 }

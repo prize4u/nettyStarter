@@ -2,6 +2,7 @@ package s.im.server.netty.api;
 
 import s.im.entity.AddressInfo;
 import s.im.entity.NettyServerState;
+import s.im.exception.NettyServerException;
 import s.im.server.netty.handler.server.HostConnectionRecorder;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface IMNettyServer extends HostConnectionRecorder {
 
-    void start();
+    void start() throws NettyServerException;
 
     void startAsyn(NettyOperationCallback callback);
 

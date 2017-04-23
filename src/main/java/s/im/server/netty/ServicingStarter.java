@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import s.im.entity.AddressInfo;
 import s.im.entity.NettyServerConfig;
+import s.im.exception.NettyServerException;
 import s.im.server.netty.api.IMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.impl.IMNettyClientImpl;
@@ -34,38 +35,38 @@ public class ServicingStarter {
     private IMNettyServer nettyServer;
     private List<IMNettyClient> nettyClients = Lists.newArrayList();
 
-    @Scheduled(fixedRate = 5000)
-    public void scanServerStatue() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n\r").append("*****************************************").append("\n\r").append("server state:").append(nettyServer.getState()).append("\n\r").append("incoming host:").append("\n\r").append(nettyServer.getIncomeRemoteHostDetail()).append("\n\r").append("outcome host:").append("\n\r").append(nettyServer.getOutcomeRemoteHostDetail()).append("\n\r").append("*****************************************").append("\n\r");
-        LOGGER.info(sb.toString());
-//        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ schedule job");
-    }
+//    @Scheduled(fixedRate = 5000)
+//    public void scanServerStatue() {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("\n\r").append("*****************************************").append("\n\r").append("server state:").append(nettyServer.getState()).append("\n\r").append("incoming host:").append("\n\r").append(nettyServer.getIncomeRemoteHostDetail()).append("\n\r").append("outcome host:").append("\n\r").append(nettyServer.getOutcomeRemoteHostDetail()).append("\n\r").append("*****************************************").append("\n\r");
+//        LOGGER.info(sb.toString());
+////        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ schedule job");
+//    }
 
-    @Scheduled(fixedRate = 5000)
-    public void testReconnect() {
-        if (nettyServer.getAddressInfo().getPort()==9091) {
-            IMNettyClient nettyClient = nettyClients.iterator().next();
-
-            try {
-                for (int i = 0; i < 100; i++) {
-                    try {
-                        TimeUnit.SECONDS.sleep(3);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    LOGGER.info("@@@@@@@@@ reconnect " + i);
-                    testReconnect(nettyClient);
-                }
-
-            } catch (Exception e) {
-                LOGGER.error("", e);
-            }
-        }
-    }
+//    @Scheduled(fixedRate = 5000)
+//    public void testReconnect() {
+//        if (nettyServer.getAddressInfo().getPort()==9091) {
+//            IMNettyClient nettyClient = nettyClients.iterator().next();
+//
+//            try {
+//                for (int i = 0; i < 100; i++) {
+//                    try {
+//                        TimeUnit.SECONDS.sleep(3);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    LOGGER.info("@@@@@@@@@ reconnect " + i);
+//                    testReconnect(nettyClient);
+//                }
+//
+//            } catch (Exception e) {
+//                LOGGER.error("", e);
+//            }
+//        }
+//    }
 
     @PostConstruct
-    public void init() {
+    public void init() throws NettyServerException {
         NettyServerConfig nettyServerConfig = nettyServerAddressHelper.resolveServerConfig();
 
         // startNettyServerOn self as netty server
@@ -87,23 +88,10 @@ public class ServicingStarter {
     }
 
     private void testReconnect(IMNettyClient nettyClient) {
-//
-//
-//        System.out.println(nettyClient.isConnected());
-        Channel channel = nettyClient.getChannel();
-//        System.out.println(nettyClient.getChannel() == null);
-        if (channel != null) {
-            boolean isOpenAndActive = nettyClient.getChannel().isOpen() && nettyClient.getChannel().isActive();
-            if (isOpenAndActive) {
-                nettyClient.disconnect();
-                LOGGER.info("sleep 3 sec before start connect");
-                try {
-                    TimeUnit.SECONDS.sleep(3);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                nettyClient.connect();
-            }
+        if (nettyServer.getAddressInfo().getPort()==9091) {
+            IMNettyClient imNettyClient = nettyClients.iterator().next();
+            Channel channel = imNettyClient.getChannel();
+
         }
 
     }
@@ -127,7 +115,7 @@ public class ServicingStarter {
         nettyServer.stop();
     }
 
-    private IMNettyServer initAndStartSelfAsNettyServer(AddressInfo selfAddressInfo) {
+    private IMNettyServer initAndStartSelfAsNettyServer(AddressInfo selfAddressInfo) throws NettyServerException {
         IMNettyServer nettyServer = new IMNettyServerImpl(selfAddressInfo, nettyServerAddressHelper.getServerWhiteListSet());
         nettyServer.start();
         return nettyServer;

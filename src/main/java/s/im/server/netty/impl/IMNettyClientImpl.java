@@ -65,18 +65,18 @@ public class IMNettyClientImpl implements IMNettyClient {
             });
 
             setState(NettyServerConnectState.Connecting);
-            LOGGER.info("client channel connecting : {} --> {}", selfAddressInfo, serverAddressInfo);
+            LOGGER.info("客户端尝试建立channel : {} --> {}", selfAddressInfo, serverAddressInfo);
             ChannelFuture channelFuture = null;
             try {
                 channelFuture = bootstrap.connect(new InetSocketAddress(serverAddressInfo.getIpAddress(), serverAddressInfo.getPort())
                         , new InetSocketAddress(selfAddressInfo.getIpAddress(), selfAddressInfo.getPort())).sync();
                 if (!channelFuture.isSuccess()) {
-                    LOGGER.error("client channel connect failed : {} --> {}", selfAddressInfo, serverAddressInfo, channelFuture.cause());
+                    LOGGER.error("客户端建立channel失败 : {} --> {}", selfAddressInfo, serverAddressInfo, channelFuture.cause());
                     // client connect to server failed,reconnect
                     setState(NettyServerConnectState.Disconnected);
                     reconnect();
                 } else {
-                    LOGGER.info("client channel connect ok : {} --> {}", selfAddressInfo, serverAddressInfo);
+                    LOGGER.info("客户端建立channel成功 : {} --> {}", selfAddressInfo, serverAddressInfo);
                     setState(NettyServerConnectState.Connected);
                     channel = channelFuture.channel();
                 }

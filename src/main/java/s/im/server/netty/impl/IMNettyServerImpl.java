@@ -8,6 +8,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
 import s.im.entity.HostConnectionDetail;
 import s.im.entity.NettyServerState;
+import s.im.exception.NettyServerException;
 import s.im.server.netty.api.IMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.api.NettyOperationCallback;
@@ -22,13 +24,15 @@ import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
 import s.im.server.netty.handler.server.HostConnectionRecorder;
 import s.im.server.netty.handler.server.HostConnectionRecorderImpl;
-import s.im.server.netty.handler.server.LoginAuthRespHandler;
+import s.im.server.netty.handler.server.ServerChannelConnectionHandler;
+import s.im.utils.Constant;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by za-zhujun on 2017/4/18.
@@ -60,10 +64,11 @@ public class IMNettyServerImpl implements IMNettyServer {
     }
 
     @Override
-    public void start() {
-        /*if (isRunning() || isStarting()) {
+    public void start() throws NettyServerException {
+        if (isRunning() || isStarting()) {
+            LOGGER.error("netty服务端已经启动 " + addressInfo);
             throw new NettyServerException("netty server already running at " + addressInfo);
-        }*/
+        }
 
         initServerAttribute();
 
@@ -75,30 +80,12 @@ public class IMNettyServerImpl implements IMNettyServer {
                 boolean channelOpenAndActive = channel != null && channel.isOpen() && channel.isActive();
                 setServerState(channelOpenAndActive ? NettyServerState.Running : NettyServerState.Stopped);
                 if (channelOpenAndActive) {
-                    LOGGER.info("Netty server start ok at {}", addressInfo);
+                    LOGGER.info("Netty服务器启动成功 {}", addressInfo);
                 }
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-//
-//        try {
-//            // 绑定端口，同步等待成功
-//            ChannelFuture channelFuture = bootstrap.bind(addressInfo.getIpAddress(), addressInfo.getPort()).sync();
-//            channelFuture.addListener(new ChannelFutureListener() {
-//                @Override
-//                public void operationComplete(ChannelFuture future) throws Exception {
-//                    Channel channel = future.channel();
-//                    boolean channelOpenAndActive = channel != null && channel.isOpen() && channel.isActive();
-//                    setServerState(channelOpenAndActive ? NettyServerState.Running : NettyServerState.Stopped);
-//                }
-//            });
-//        } catch (InterruptedException e) {
-//            setServerState(NettyServerState.Stopped);
-//            throw new NettyServerException(e);
-//        }
-
     }
 
     private void initServerAttribute() {
@@ -110,15 +97,19 @@ public class IMNettyServerImpl implements IMNettyServer {
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 100)
-//                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .handler(new LoggingHandler(LogLevel.INFO)).childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws IOException {
+                ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT,
+                        Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+                ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
                 ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
                 ch.pipeline().addLast(new NettyMessageEncoder());
+
 //                ch.pipeline().addLast(new ClientConnectionHandler(serverInstance));
 //                ch.pipeline().addLast("readTimeoutHandler", new ReadTimeoutHandler(Constant.NETTY_TIMEOUT_IN_SECONDS));
-                ch.pipeline().addLast(new LoginAuthRespHandler(serverInstance));
+//                ch.pipeline().addLast(new LoginAuthRespHandler(serverInstance));
 //                ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(serverInstance));
             }
         });
@@ -163,7 +154,6 @@ public class IMNettyServerImpl implements IMNettyServer {
     public void restart() {
         setServerState(NettyServerState.Restarting);
         stop();
-        start();
     }
 
     @Override
