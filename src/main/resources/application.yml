@@ -5,5 +5,5 @@ netty.server:
   servicing.address: 192.168.0.106:9090,192.168.0.103:9090
   selfport: 9090
   local.port: 12088
-  white.list: 192.168.0.106，192.168.0.103
+  white.list: 192.168.0.106,192.168.0.103
   backlog: 1024
