@@ -38,7 +38,7 @@ public class HelloWorldClient {
         try {
             future = b.connect(host, port).sync();
             future.channel().writeAndFlush("Hello Netty Server ,I am a common client");
-            future.channel().closeFuture().sync();
+            future.channel().close().sync();
         } finally {
             // group.shutdownGracefully();
             if (null != future) {
