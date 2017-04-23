@@ -75,14 +75,16 @@ public class ServicingStarter {
             //TODO
         }
 
-        // connection to exist started netty server if exists
-        List<AddressInfo> targetServerAddressInfo = nettyServerConfig.getTargetServerAddressInfo();
-        if (CollectionUtils.isNotEmpty(targetServerAddressInfo)) {
-            // init netty client
-            for (AddressInfo addressInfo : targetServerAddressInfo) {
-                AddressInfo selfAddressToConnect = new AddressInfo(Constant.SELF_IP_ADDRESS, nettyServerAddressHelper.getLocalPortToConnect());
-                IMNettyClient nettyClient = initAndConnectNettyClient(selfAddressToConnect, addressInfo);
-                nettyClients.add(nettyClient);
+        if (nettyServerConfig.getSelfAddressInfo().getIpAddress().equals("192.168.0.103")) {
+            // connection to exist started netty server if exists
+            List<AddressInfo> targetServerAddressInfo = nettyServerConfig.getTargetServerAddressInfo();
+            if (CollectionUtils.isNotEmpty(targetServerAddressInfo)) {
+                // init netty client
+                for (AddressInfo addressInfo : targetServerAddressInfo) {
+                    AddressInfo selfAddressToConnect = new AddressInfo(Constant.SELF_IP_ADDRESS, nettyServerAddressHelper.getLocalPortToConnect());
+                    IMNettyClient nettyClient = initAndConnectNettyClient(selfAddressToConnect, addressInfo);
+                    nettyClients.add(nettyClient);
+                }
             }
         }
     }
