@@ -1,12 +1,21 @@
 package s.netty.heartbean;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.timeout.IdleStateHandler;
+
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 
 public class HelloWorldClient {
 
@@ -14,29 +23,22 @@ public class HelloWorldClient {
         ChannelFuture future = null;
         // Configure the client.
         EventLoopGroup group = new NioEventLoopGroup();
-        Bootstrap b = new Bootstrap().group(group).channel(NioSocketChannel.class).option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                ChannelPipeline p = ch.pipeline();
-                p.addLast("decoder", new StringDecoder());
-                p.addLast("encoder", new StringEncoder());
-//                        p.addLast("ping", new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
+        Bootstrap b = new Bootstrap().group(group).channel(NioSocketChannel.class)
+                .option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        ChannelPipeline p = ch.pipeline();
+                        p.addLast("decoder", new StringDecoder());
+                        p.addLast("encoder", new StringEncoder());
+                        p.addLast("ping", new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
 //                        p.addLast(new BaseClientHandler());
-            }
-        });
+                    }
+                });
 
         try {
             future = b.connect(host, port).sync();
-            Channel channel = future.channel();
-            channel.writeAndFlush("Hello Netty Server ,I am a common client");
-            Thread.sleep(5000);// sleep 5 s
-            ChannelFuture closeFuture = channel.close();
-            closeFuture.addListener(new ChannelFutureListener() {
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    System.out.println(channelFuture);
-                }
-            });
-//            future.channel().closeFuture().sync();
+            future.channel().writeAndFlush("Hello Netty Server ,I am a common client");
+            future.channel().closeFuture().sync();
         } finally {
             // group.shutdownGracefully();
             if (null != future) {
@@ -63,7 +65,7 @@ public class HelloWorldClient {
                 // 采用默认值
             }
         }
-        new HelloWorldClient().connect(port, "192.168.0.104");
+        new HelloWorldClient().connect(port, "192.168.0.106");
     }
 
 }
