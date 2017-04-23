@@ -63,6 +63,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 					NettyMessage heatBeat = NettyMessageFactory.newHeartBeanReq();
 					LOGGER.info("发送心跳请求 {} ---> {} with message {} ", this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo(), heatBeat);
 					ctx.writeAndFlush(heatBeat);
+					noWriteTimeInSeconds = 0;
 				}
 			}
 		} else {
@@ -73,5 +74,6 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		loss_connect_time--;
+		super.channelRead(ctx, msg);
 	}
 }

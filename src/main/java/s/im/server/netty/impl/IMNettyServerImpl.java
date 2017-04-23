@@ -22,10 +22,7 @@ import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.api.NettyOperationCallback;
 import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
-import s.im.server.netty.handler.server.HostConnectionRecorder;
-import s.im.server.netty.handler.server.HostConnectionRecorderImpl;
-import s.im.server.netty.handler.server.LoginAuthRespHandler;
-import s.im.server.netty.handler.server.ServerChannelConnectionHandler;
+import s.im.server.netty.handler.server.*;
 import s.im.utils.Constant;
 
 import java.io.IOException;
@@ -111,7 +108,7 @@ public class IMNettyServerImpl implements IMNettyServer {
 //                ch.pipeline().addLast(new ClientConnectionHandler(serverInstance));
 //                ch.pipeline().addLast("readTimeoutHandler", new ReadTimeoutHandler(Constant.NETTY_TIMEOUT_IN_SECONDS));
                 ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
-//                ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(serverInstance));
+                ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
             }
         });
         setServerState(NettyServerState.Starting);
