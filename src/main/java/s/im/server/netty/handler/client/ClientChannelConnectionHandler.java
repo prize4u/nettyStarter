@@ -8,6 +8,7 @@ import io.netty.handler.timeout.IdleStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
+import s.im.message.server.MessageType;
 import s.im.message.server.NettyMessage;
 import s.im.message.server.NettyMessageFactory;
 import s.im.server.netty.api.IMNettyClient;
@@ -74,6 +75,11 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		loss_connect_time--;
-		super.channelRead(ctx, msg);
+
+		NettyMessage message = (NettyMessage) msg;
+		if (message.getHeader() != null && message.getHeader().getType() == MessageType.HEARTBEAT_RESP.value()) {
+			LOGGER.info("收到心跳响应 {} ---> {} with message {} ", this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo());
+		}
+		ctx.fireChannelRead(msg);
 	}
 }
