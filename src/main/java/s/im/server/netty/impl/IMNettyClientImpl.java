@@ -15,6 +15,7 @@ import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.api.NettyOperationCallback;
 import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
+import s.im.server.netty.handler.client.ClientChannelConnectionHandler;
 import s.im.server.netty.handler.client.LoginAuthReqHandler;
 import s.im.utils.Constant;
 
@@ -57,7 +58,7 @@ public class IMNettyClientImpl implements IMNettyClient {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
                     ch.pipeline().addLast("MessageEncoder", new NettyMessageEncoder());
-//                    ch.pipeline().addLast("connectHandler", new ClientConnectionHandler(clientInstanct));
+                    ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
 //                    ch.pipeline().addLast("readTimeoutHandler", new ReadTimeoutHandler(Constant.NETTY_TIMEOUT_IN_SECONDS));
                     ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(clientInstanct));
 //                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatReqHandler(clientInstanct));

@@ -37,12 +37,8 @@ public class NettyServerAddressHelper implements InitializingBean {
         AddressInfo selfAddress = selfServicingAddress();
         config.setSelfAddressInfo(selfAddress);
 
-        int idx = serverAddressInfos.indexOf(selfAddress);
-        if (idx == 0) {
-            config.setTargetServerAddressInfo(null);
-        } else {
-            config.setTargetServerAddressInfo(serverAddressInfos.subList(0, idx));
-        }
+        serverAddressInfos.remove(selfAddress);
+        config.setTargetServerAddressInfo(serverAddressInfos);
         return config;
     }
 

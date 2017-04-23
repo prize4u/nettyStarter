@@ -41,7 +41,9 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        ctx.writeAndFlush(NettyMessageFactory.newLoginReq());
+        NettyMessage loginMessage = NettyMessageFactory.newLoginReq();
+        LOGGER.info("客服端发送login请求消息：{} --> {} with message {}", this.selfConnectAddressInfo, this.nettyClient.getServerAddressInfo(), loginMessage);
+        ctx.writeAndFlush(loginMessage);
     }
 
     @Override
@@ -51,15 +53,15 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
         // 如果是握手应答消息，需要判断是否认证成功
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_RESP.value()) {
             AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-            LOGGER.info("RCV LOGIN RESP {} --> {} with message {}", remoteAddressInfo, this.selfConnectAddressInfo, message);
+            LOGGER.info("客户端接受登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.selfConnectAddressInfo, message);
             byte loginResult = (byte) message.getBody();
             if (loginResult != (byte) 0) {
                 // 握手失败，关闭连接
-                LOGGER.error("LOGIN FAILED {} --> {}. close channel", this.selfConnectAddressInfo, remoteAddressInfo);
+                LOGGER.error("客户端登录失败 {} --> {}. 关闭通道", this.selfConnectAddressInfo, remoteAddressInfo);
                 ctx.close();
                 nettyClient.setState(NettyServerConnectState.Disconnected);
             } else {
-                LOGGER.info("LOGIN SUCCESS {} --> {}", remoteAddressInfo, this.selfConnectAddressInfo);
+                LOGGER.info("客户端登录成功 {} --> {}", remoteAddressInfo, this.selfConnectAddressInfo);
                 nettyClient.reocrdOutcomeRemoteLogin(selfConnectAddressInfo, remoteAddressInfo, new Date());
                 ctx.fireChannelRead(msg);
             }

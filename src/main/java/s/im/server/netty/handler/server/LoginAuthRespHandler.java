@@ -46,11 +46,11 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
         // 如果是握手请求消息，处理，其它消息透传
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_REQ.value()) {
             HostConnectionDetail connDetail = newConnectionDetail(ctx);
-            LOGGER.info("RCV LOGIN REQ {} --> {} with message {}", connDetail.getSrcHost(), connDetail.getDestHost(), message);
+            LOGGER.info("服务端接受login请求消息 {} --> {} with message {}", connDetail.getSrcHost(), connDetail.getDestHost(), message);
             NettyMessage loginResp = null;
             // 重复登陆，拒绝
             if (serverInstance.existIncomeConnection(connDetail.getSrcHost(), connDetail.getDestHost())) {
-                LOGGER.info("{} is already login at {}, login will be denied.", connDetail.getSrcHost(), connDetail.getDestHost());
+                LOGGER.info("{} 已经在 {} 登录, 拒绝登录请求.", connDetail.getSrcHost(), connDetail.getDestHost());
                 loginResp = NettyMessageFactory.newLoginResp((byte) -1);
             } else {
                 // record login date
@@ -58,10 +58,10 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
                 if (acceptedHost) {
                     serverInstance.reocrdIncomeRemoteLogin(connDetail);
                 }
-                LOGGER.info("connected remote ip : {}", serverInstance.getIncomeRemoteHostDetail());
+                LOGGER.info("登录成功 : {}", serverInstance.getIncomeRemoteHostDetail());
                 loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
             }
-            LOGGER.info("SNT LOGIN RESP {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
+            LOGGER.info("发送登录返回消息 {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
             ctx.writeAndFlush(loginResp);
         } else {
             ctx.fireChannelRead(msg);
