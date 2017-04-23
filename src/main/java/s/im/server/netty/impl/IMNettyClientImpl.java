@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
@@ -58,7 +59,9 @@ public class IMNettyClientImpl implements IMNettyClient {
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
                     ch.pipeline().addLast("MessageEncoder", new NettyMessageEncoder());
-                    ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
+//                    ch.pipeline().addLast(new IdleStateHandler(Constant.CLIENT_READ_IDEL_TIME_OUT,
+//                            Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+//                    ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
 //                    ch.pipeline().addLast("readTimeoutHandler", new ReadTimeoutHandler(Constant.NETTY_TIMEOUT_IN_SECONDS));
                     ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(clientInstanct));
 //                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatReqHandler(clientInstanct));

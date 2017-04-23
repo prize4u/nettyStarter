@@ -58,7 +58,7 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
                 if (acceptedHost) {
                     serverInstance.reocrdIncomeRemoteLogin(connDetail);
                 }
-                LOGGER.info("登录成功 : {}", serverInstance.getIncomeRemoteHostDetail());
+                LOGGER.info("登录成功 : {}", connDetail);
                 loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
             }
             LOGGER.info("发送登录返回消息 {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
