@@ -1,6 +1,7 @@
 package s.im.server.netty.handler.server;
 
 
+import io.netty.channel.Channel;
 import s.im.entity.AddressInfo;
 import s.im.entity.HostConnectionDetail;
 
@@ -18,11 +19,11 @@ public interface OutcomeConnectionRecorder {
      */
     Set<HostConnectionDetail> getOutcomeRemoteHostDetail();
 
-    void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date connDate);
+    void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date connDate);
 
     void reocrdOutcomeRemoteLogin(HostConnectionDetail conn);
 
-    void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost);
+    void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel);
 
     boolean existOutcomeConnection(AddressInfo srcHost, AddressInfo destHost);
 

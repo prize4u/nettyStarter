@@ -42,7 +42,7 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         NettyMessage loginMessage = NettyMessageFactory.newLoginReq();
-        LOGGER.info("客服端发送login请求消息：{} --> {} with message {}", this.selfConnectAddressInfo, this.nettyClient.getServerAddressInfo(), loginMessage);
+        LOGGER.info("客户端发送login请求消息：{} --> {} with message {}", this.selfConnectAddressInfo, this.nettyClient.getServerAddressInfo(), loginMessage);
         ctx.writeAndFlush(loginMessage);
     }
 
@@ -62,7 +62,7 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
                 nettyClient.setState(NettyServerConnectState.Disconnected);
             } else {
                 LOGGER.info("客户端登录成功 {} --> {}", remoteAddressInfo, this.selfConnectAddressInfo);
-                nettyClient.reocrdOutcomeRemoteLogin(selfConnectAddressInfo, remoteAddressInfo, new Date());
+                nettyClient.reocrdOutcomeRemoteLogin(selfConnectAddressInfo, remoteAddressInfo, ctx.channel(), new Date());
                 ctx.fireChannelRead(msg);
             }
         } else {

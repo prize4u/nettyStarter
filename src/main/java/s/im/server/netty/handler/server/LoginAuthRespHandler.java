@@ -77,12 +77,12 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
 
     private void removeRemoteHostFromServerCache(ChannelHandlerContext ctx) {
         AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-        serverInstance.removeIncomeRemoteLogin(remoteAddressInfo, this.serverServicingAddressInfo);
+        serverInstance.removeIncomeRemoteLogin(remoteAddressInfo, this.serverServicingAddressInfo, ctx.channel());
         LOGGER.info("remove host {} from connected remote ip, new connected remote ip: {} ", remoteAddressInfo, serverInstance.getIncomeRemoteHostDetail());
     }
 
     private HostConnectionDetail newConnectionDetail(ChannelHandlerContext ctx) {
         AddressInfo srcAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
-        return new HostConnectionDetail(srcAddress, serverServicingAddressInfo, new Date());
+        return new HostConnectionDetail(srcAddress, serverServicingAddressInfo, ctx.channel(), new Date());
     }
 }

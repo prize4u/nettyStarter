@@ -32,6 +32,7 @@ public class ServerChannelConnectionHandler extends ChannelInboundHandlerAdapter
 				if (loss_connect_time >= 2) {
 					AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
 					LOGGER.info("服务端关闭Channel：{} -->{}", this.imNettyServer.getAddressInfo(), remoteAddressInfo);
+					this.imNettyServer.removeIncomeRemoteLogin(remoteAddressInfo, this.imNettyServer.getAddressInfo(), ctx.channel());
 					ctx.channel().close();
 				}
 			}

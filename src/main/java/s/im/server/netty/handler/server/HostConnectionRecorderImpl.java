@@ -1,8 +1,10 @@
 package s.im.server.netty.handler.server;
 
 import com.google.common.collect.Sets;
+import io.netty.channel.Channel;
 import s.im.entity.AddressInfo;
 import s.im.entity.HostConnectionDetail;
+import s.im.service.api.ChannelRegistor;
 
 import java.util.Date;
 import java.util.Set;
@@ -14,6 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HostConnectionRecorderImpl implements HostConnectionRecorder {
     private ConcurrentHashMap<String, HostConnectionDetail> incomeConnectionsMap = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, HostConnectionDetail> outcomeConnectionsMap = new ConcurrentHashMap<>();
+    private ChannelRegistor channelRegistor;
+
+    public HostConnectionRecorderImpl(ChannelRegistor channelRegistor) {
+        this.channelRegistor = channelRegistor;
+    }
 
     @Override
     public Set<HostConnectionDetail> getIncomeRemoteHostDetail() {
@@ -24,11 +31,12 @@ public class HostConnectionRecorderImpl implements HostConnectionRecorder {
     public void reocrdIncomeRemoteLogin(HostConnectionDetail conn) {
         String key = buildKey(conn.getSrcHost(), conn.getDestHost());
         incomeConnectionsMap.put(key, conn);
+        channelRegistor.registChannel(conn.getSrcHost(), conn.getDestHost(), conn.getChannel());
     }
 
     @Override
-    public void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date loginDate) {
-        reocrdIncomeRemoteLogin(new HostConnectionDetail(srcHost, destHost, loginDate));
+    public void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date loginDate) {
+        reocrdIncomeRemoteLogin(new HostConnectionDetail(srcHost, destHost, channel, loginDate));
     }
 
     private String buildKey(AddressInfo srcHost, AddressInfo destHost) {
@@ -36,9 +44,10 @@ public class HostConnectionRecorderImpl implements HostConnectionRecorder {
     }
 
     @Override
-    public void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost) {
+    public void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel) {
         String key = buildKey(srcHost, destHost);
         incomeConnectionsMap.remove(key);
+        channelRegistor.deregistChannel(srcHost, destHost, channel);
     }
 
     @Override
@@ -53,14 +62,15 @@ public class HostConnectionRecorderImpl implements HostConnectionRecorder {
     }
 
     @Override
-    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date connDate) {
-        reocrdOutcomeRemoteLogin(new HostConnectionDetail(srcHost, destHost, connDate));
+    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date connDate) {
+        reocrdOutcomeRemoteLogin(new HostConnectionDetail(srcHost, destHost, channel, connDate));
     }
 
     @Override
-    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost) {
+    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel) {
         String key = buildKey(srcHost, destHost);
         outcomeConnectionsMap.remove(key);
+        channelRegistor.deregistChannel(srcHost, destHost, channel);
     }
 
     @Override
@@ -73,5 +83,6 @@ public class HostConnectionRecorderImpl implements HostConnectionRecorder {
     public void reocrdOutcomeRemoteLogin(HostConnectionDetail conn) {
         String key = buildKey(conn.getSrcHost(), conn.getDestHost());
         outcomeConnectionsMap.put(key, conn);
+        channelRegistor.registChannel(conn.getSrcHost(), conn.getDestHost(), conn.getChannel());
     }
 }

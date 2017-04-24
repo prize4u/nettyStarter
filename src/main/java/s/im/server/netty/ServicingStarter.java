@@ -16,6 +16,7 @@ import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.impl.IMNettyClientImpl;
 import s.im.server.netty.impl.IMNettyServerImpl;
 import s.im.server.netty.impl.NettyServerAddressHelper;
+import s.im.service.api.ChannelRegistor;
 import s.im.utils.Constant;
 
 import javax.annotation.PostConstruct;
@@ -32,6 +33,9 @@ public class ServicingStarter {
 
     @Autowired
     private NettyServerAddressHelper nettyServerAddressHelper;
+    @Autowired
+    private ChannelRegistor channelRegistor;
+
     private IMNettyServer nettyServer;
     private List<IMNettyClient> nettyClients = Lists.newArrayList();
 
@@ -89,15 +93,6 @@ public class ServicingStarter {
         }
     }
 
-    private void testReconnect(IMNettyClient nettyClient) {
-        if (nettyServer.getAddressInfo().getPort()==9091) {
-            IMNettyClient imNettyClient = nettyClients.iterator().next();
-            Channel channel = imNettyClient.getChannel();
-
-        }
-
-    }
-
     private IMNettyClient initAndConnectNettyClient(AddressInfo selfAddress, AddressInfo targetAddress) {
         IMNettyClient nettyClient = new IMNettyClientImpl(nettyServer, selfAddress, targetAddress);
         nettyClient.connect();
@@ -118,7 +113,7 @@ public class ServicingStarter {
     }
 
     private IMNettyServer initAndStartSelfAsNettyServer(AddressInfo selfAddressInfo) throws NettyServerException {
-        IMNettyServer nettyServer = new IMNettyServerImpl(selfAddressInfo, nettyServerAddressHelper.getServerWhiteListSet());
+        IMNettyServer nettyServer = new IMNettyServerImpl(selfAddressInfo, nettyServerAddressHelper.getServerWhiteListSet(), channelRegistor);
         nettyServer.start();
         return nettyServer;
     }

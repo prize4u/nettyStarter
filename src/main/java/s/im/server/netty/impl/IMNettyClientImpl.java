@@ -18,6 +18,7 @@ import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
 import s.im.server.netty.handler.client.ClientChannelConnectionHandler;
 import s.im.server.netty.handler.client.LoginAuthReqHandler;
+import s.im.utils.ChannelUtils;
 import s.im.utils.Constant;
 
 import java.net.InetSocketAddress;
@@ -135,23 +136,29 @@ public class IMNettyClientImpl implements IMNettyClient {
                 @Override
                 public void onSuccess() {
                     setState(NettyServerConnectState.Disconnected);
-                    LOGGER.info("start reconnect: {} --> {}", getSelfAddressInfo(), getServerAddressInfo());
-                    eventLoop.schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            connect();
-                        }
-                    }, Constant.NETTY_CLIENT_RECONNECT_DELAY, TimeUnit.SECONDS);
+                    doReconnect();
                 }
 
                 @Override
                 public void onFailed() {
-
+                    LOGGER.info("第{}次重连失败，尝试再次重连: {} --> {}", getSelfAddressInfo(), getServerAddressInfo());
+                    doReconnect();
                 }
             });
         } else {
-            connect();
+            doReconnect();
         }
+    }
+
+    private void doReconnect() {
+        LOGGER.info("{} 秒后计划重连: {} --> {}", Constant.NETTY_CLIENT_RECONNECT_DELAY
+                , getSelfAddressInfo(), getServerAddressInfo());
+        eventLoop.schedule(new Runnable() {
+            @Override
+            public void run() {
+                connect();
+            }
+        }, Constant.NETTY_CLIENT_RECONNECT_DELAY, TimeUnit.SECONDS);
     }
 
     @Override
@@ -174,7 +181,7 @@ public class IMNettyClientImpl implements IMNettyClient {
 
     @Override
     public boolean isConnected() {
-        return this.channel != null && this.channel.isOpen() && this.channel.isActive();
+        return ChannelUtils.isOpenAndActive(this.channel);
     }
 
     @Override
@@ -193,13 +200,13 @@ public class IMNettyClientImpl implements IMNettyClient {
     }
 
     @Override
-    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date connDate) {
-        nettyServer.reocrdOutcomeRemoteLogin(srcHost, destHost, connDate);
+    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date connDate) {
+        nettyServer.reocrdOutcomeRemoteLogin(srcHost, destHost, channel, connDate);
     }
 
     @Override
-    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost) {
-        nettyServer.removeOutcomeRemoteLogin(srcHost, destHost);
+    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel) {
+        nettyServer.removeOutcomeRemoteLogin(srcHost, destHost, channel);
     }
 
     @Override

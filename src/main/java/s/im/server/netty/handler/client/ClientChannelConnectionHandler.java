@@ -31,20 +31,8 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
 		LOGGER.info("客服端channel失效 : {} --> {}", this.imNettyClient.getSelfAddressInfo(), remoteAddressInfo);
-		scheduleReChannelReconnect(ctx);
-	}
-
-	private void scheduleReChannelReconnect(ChannelHandlerContext ctx) throws Exception {
-		LOGGER.info("{} 秒后计划重连: {} --> {}", Constant.NETTY_CLIENT_RECONNECT_DELAY
-				, this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo());
-		final EventLoop eventLoop = ctx.channel().eventLoop();
-		eventLoop.schedule(new Runnable() {
-            @Override
-            public void run() {
-                imNettyClient.connect();
-            }
-        }, Constant.NETTY_CLIENT_RECONNECT_DELAY, TimeUnit.SECONDS);
-		super.channelInactive(ctx);
+		imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getSelfAddressInfo(), remoteAddressInfo, ctx.channel());
+		imNettyClient.reconnect();
 	}
 
 	@Override
@@ -58,7 +46,8 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 				if (loss_connect_time > 1) {
 					//
 					LOGGER.info("链接丢失 {} --> {}", noWriteTimeInSeconds, this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo());
-					scheduleReChannelReconnect(ctx);
+					imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo(), ctx.channel());
+					imNettyClient.reconnect();
 				} else {
 					// send heart bean message
 					NettyMessage heatBeat = NettyMessageFactory.newHeartBeanReq();
@@ -76,6 +65,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		loss_connect_time--;
 
+		// 心跳响应
 		NettyMessage message = (NettyMessage) msg;
 		if (message.getHeader() != null && message.getHeader().getType() == MessageType.HEARTBEAT_RESP.value()) {
 			LOGGER.info("收到心跳响应 {} ---> {} with message {} ", this.imNettyClient.getSelfAddressInfo(), this.imNettyClient.getServerAddressInfo());

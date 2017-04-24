@@ -15,7 +15,6 @@
  */
 package s.im.server.netty.handler.server;
 
-import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
@@ -25,6 +24,7 @@ import s.im.message.server.MessageType;
 import s.im.message.server.NettyMessage;
 import s.im.message.server.NettyMessageFactory;
 import s.im.server.netty.api.IMNettyServer;
+import s.im.service.api.ChannelRegistor;
 import s.im.utils.ChannelHandlerContextUtils;
 
 public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
@@ -43,7 +43,8 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
         AddressInfo remoteAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
         // client channel closed
         ctx.close();
-        LOGGER.info("channel inactive : {} --> {}", remoteAddress, this.serverInstance.getAddressInfo());
+        serverInstance.removeIncomeRemoteLogin(remoteAddress, this.serverInstance.getAddressInfo(), ctx.channel());
+        LOGGER.info("服务端发现channel 失效 : {} --> {}", remoteAddress, this.serverInstance.getAddressInfo());
         ctx.fireChannelActive();
     }
 

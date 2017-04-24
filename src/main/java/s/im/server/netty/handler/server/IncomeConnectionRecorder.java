@@ -1,5 +1,6 @@
 package s.im.server.netty.handler.server;
 
+import io.netty.channel.Channel;
 import s.im.entity.AddressInfo;
 import s.im.entity.HostConnectionDetail;
 
@@ -18,11 +19,11 @@ public interface IncomeConnectionRecorder {
      */
     Set<HostConnectionDetail> getIncomeRemoteHostDetail();
 
-    void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date loginDate);
+    void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date loginDate);
 
     void reocrdIncomeRemoteLogin(HostConnectionDetail conn);
 
-    void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost);
+    void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel);
 
     boolean existIncomeConnection(AddressInfo srcHost, AddressInfo destHost);
 

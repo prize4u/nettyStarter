@@ -23,6 +23,7 @@ import s.im.server.netty.api.NettyOperationCallback;
 import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
 import s.im.server.netty.handler.server.*;
+import s.im.service.api.ChannelRegistor;
 import s.im.utils.Constant;
 
 import java.io.IOException;
@@ -44,12 +45,13 @@ public class IMNettyServerImpl implements IMNettyServer {
     private EventLoopGroup workerGroup;
     private ServerBootstrap bootstrap;
     private NettyServerState serverState = NettyServerState.Stopped;
-    private HostConnectionRecorder connectionRecorder = new HostConnectionRecorderImpl();
+    private HostConnectionRecorder connectionRecorder;
     private ConcurrentHashMap<String, IMNettyClient> nettyClientMap = new ConcurrentHashMap<>();
 
-    public IMNettyServerImpl(AddressInfo addressInfo, Set<String> whiteList) {
+    public IMNettyServerImpl(AddressInfo addressInfo, Set<String> whiteList, ChannelRegistor channelRegistor) {
         this.addressInfo = addressInfo;
         this.whiteList = whiteList;
+        connectionRecorder = new HostConnectionRecorderImpl(channelRegistor);
     }
 
     public void setServerState(NettyServerState serverState) {
@@ -184,13 +186,13 @@ public class IMNettyServerImpl implements IMNettyServer {
     }
 
     @Override
-    public void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date loginDate) {
-        connectionRecorder.reocrdIncomeRemoteLogin(srcHost, destHost, loginDate);
+    public void reocrdIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date loginDate) {
+        connectionRecorder.reocrdIncomeRemoteLogin(srcHost, destHost, channel, loginDate);
     }
 
     @Override
-    public void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost) {
-        connectionRecorder.removeIncomeRemoteLogin(srcHost, destHost);
+    public void removeIncomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel) {
+        connectionRecorder.removeIncomeRemoteLogin(srcHost, destHost, channel);
     }
 
     @Override
@@ -204,13 +206,13 @@ public class IMNettyServerImpl implements IMNettyServer {
     }
 
     @Override
-    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Date connDate) {
-        connectionRecorder.reocrdOutcomeRemoteLogin(srcHost, destHost, connDate);
+    public void reocrdOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel, Date connDate) {
+        connectionRecorder.reocrdOutcomeRemoteLogin(srcHost, destHost, channel, connDate);
     }
 
     @Override
-    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost) {
-        connectionRecorder.removeOutcomeRemoteLogin(srcHost, destHost);
+    public void removeOutcomeRemoteLogin(AddressInfo srcHost, AddressInfo destHost, Channel channel) {
+        connectionRecorder.removeOutcomeRemoteLogin(srcHost, destHost, channel);
     }
 
     @Override
