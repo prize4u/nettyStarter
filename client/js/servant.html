@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8"/>
+
+    <title>Demo Chat</title>
+
+    <link href="bootstrap.css" rel="stylesheet">
+
+    <style>
+        body {
+            padding: 20px;
+        }
+
+        #console {
+            height: 400px;
+            overflow: auto;
+        }
+
+        .username-msg {
+            color: orange;
+        }
+
+        .connect-msg {
+            color: green;
+        }
+
+        .disconnect-msg {
+            color: red;
+        }
+
+        .send-msg {
+            color: #888
+        }
+    </style>
+
+
+    <script src="js/socket.io/socket.io.js"></script>
+    <script src="js/moment.min.js"></script>
+    <script src="js/jquery-1.7.2.min.js"></script>
+
+    <script>
+
+        function uuid() {
+            var s = [];
+            var hexDigits = "0123456789abcdef";
+            for (var i = 0; i < 36; i++) {
+                s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+            }
+            s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+            s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+            s[8] = s[13] = s[18] = s[23] = "-";
+
+            var uuid = s.join("");
+            return uuid;
+        }
+
+        var userName = 'jack';
+
+        var socket = io.connect('http://localhost:9093?userName=' + userName);
+
+        socket.on('connect', function (data, ackServerCallback) {
+            if (data) {
+                output('<span class="username-msg">' + data.userName + ':' + new Date(data.sendDate) + ' :</span> ' +
+                    data.message);
+                var jsonObject = {
+                    '@class': 's.im.message.client.ClientChatObject',
+                    userName: userName,
+                    message: data.messageId,
+                    messageType: 8
+                };
+                ackServerCallback(jsonObject);
+            }
+        });
+
+        socket.on('disconnect', function () {
+            output('<span class="disconnect-msg">The client has disconnected!</span>');
+        });
+
+        socket.on('chatevent', function(data, ackServerCallback) {
+            if (data) {
+                output('<span class="username-msg">' + data.userName + ':</span> ' + data.message);
+                var jsonObject = {
+                    '@class': 's.im.message.client.ClientChatObject',
+                    userName: userName,
+                    message: data.messageId,
+                    messageType: 8
+                };
+                ackServerCallback(jsonObject);
+            }
+        });
+
+        function sendDisconnect() {
+            socket.disconnect();
+        }
+
+        function sendMessage() {
+            var message = $('#msg').val();
+            var sendDate = new Date();
+            var messageId = uuid();
+            $('#msg').val('');
+
+            var jsonObject = {
+                '@class': 's.im.message.client.ClientChatObject',
+                messageId : messageId,
+                messageType: 8,
+                sendDate : new Date().getTime(),
+                userName: userName,
+                message: message
+
+            };
+            socket.emit('chatevent', jsonObject, function(data, ackServerCallback) {
+                if (data) {
+                    output('<span class="username-msg">' + userName + ':</span> ' + message);
+                }
+            });
+        }
+
+        function output(message) {
+            var currentTime = "<span class='time'>" + moment().format('HH:mm:ss.SSS') + "</span>";
+            var element = $("<div>" + currentTime + " " + message + "</div>");
+            $('#console').prepend(element);
+        }
+
+        function nextClient() {
+            var address = 'http://localhost:8081/api/dequeue';
+            $.ajax({
+                type : "get",
+                url: address,
+                success : function () {
+                    alert("ok");
+                },
+                fail : function () {
+                    alert("failed");
+                }
+            });
+
+        }
+
+        $(document).keydown(function (e) {
+            if (e.keyCode == 13) {
+                $('#send').click();
+            }
+        });
+
+    </script>
+</head>
+
+<body>
+
+<h1>Netty-socketio Demo Chat</h1>
+
+<br/>
+
+<div id="console" class="well">
+</div>
+
+<form class="well form-inline" onsubmit="return false;">
+    <input id="msg" class="input-xlarge" type="text" placeholder="Type something..."/>
+    <button type="button" onClick="sendMessage()" class="btn" id="send">Send</button>
+    <button type="button" onClick="sendDisconnect()" class="btn">Disconnect</button>
+    <button type="button" onClick="nextClient()" class="btn">Next</button>
+</form>
+
+
+</body>
+
+</html>
