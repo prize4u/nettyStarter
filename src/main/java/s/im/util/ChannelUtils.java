@@ -1,4 +1,4 @@
-package s.im.utils;
+package s.im.util;
 
 import io.netty.channel.Channel;
 

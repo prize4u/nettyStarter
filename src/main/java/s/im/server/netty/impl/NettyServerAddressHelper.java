@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import s.im.entity.AddressInfo;
 import s.im.entity.NettyServerConfig;
-import s.im.utils.Constant;
+import s.im.util.Constant;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,12 +37,15 @@ public class NettyServerAddressHelper implements InitializingBean {
         AddressInfo selfAddress = selfServicingAddress();
         config.setSelfAddressInfo(selfAddress);
 
-        serverAddressInfos.remove(selfAddress);
-        config.setTargetServerAddressInfo(serverAddressInfos);
+//        serverAddressInfos.remove(selfAddress);
+        int i = serverAddressInfos.indexOf(selfAddress);
+        if (i != -1 && i != serverAddressInfos.size() - 1) {
+            config.setTargetServerAddressInfo(serverAddressInfos.subList(i + 1, serverAddressInfos.size()));
+        }
         return config;
     }
 
-    private AddressInfo selfServicingAddress() {
+    public AddressInfo selfServicingAddress() {
         return new AddressInfo(Constant.SELF_IP_ADDRESS, selfServicingPort);
     }
 

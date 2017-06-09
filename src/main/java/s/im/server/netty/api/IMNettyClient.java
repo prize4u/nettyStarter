@@ -2,34 +2,32 @@ package s.im.server.netty.api;
 
 import io.netty.channel.Channel;
 import s.im.entity.AddressInfo;
-import s.im.entity.NettyServerConnectState;
-import s.im.server.netty.handler.server.OutcomeConnectionRecorder;
+import s.im.exception.IMServerException;
+import s.im.server.api.HostAddressable;
+import s.im.server.api.ServerStatusTrackable;
+import s.im.server.recorder.api.OutConnectionChannelRecorder;
 
 /**
  * Created by za-zhujun on 2017/4/18.
  */
-public interface IMNettyClient extends OutcomeConnectionRecorder {
+public interface IMNettyClient extends OutConnectionChannelRecorder, HostAddressable, ServerStatusTrackable {
 
-    void connect();
+    void connect() throws IMServerException;
 
-    void reconnect();
+    void reconnect() throws IMServerException;
 
-    void disconnect();
+    void disconnect() throws IMServerException;
 
-    void disconnectAsync(NettyOperationCallback callback);
+//    void disconnectAsync(NettyOperationCallback callback);
 
     void shutdown();
 
+//    boolean isConnected();
+
+    AddressInfo getConnectingRemoteAddress();
+
+    IMNettyServer getNestedNettyServer();
+
     Channel getChannel();
-
-    AddressInfo getSelfAddressInfo();
-
-    AddressInfo getServerAddressInfo();
-
-    boolean isConnected();
-
-    NettyServerConnectState getState();
-
-    void setState(NettyServerConnectState state);
 
 }

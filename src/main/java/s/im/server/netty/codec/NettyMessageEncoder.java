@@ -41,7 +41,7 @@ public final class NettyMessageEncoder extends MessageToByteEncoder<NettyMessage
         if (msg == null || msg.getHeader() == null) throw new Exception("The encode message is null");
         sendBuf.writeInt((msg.getHeader().getCrcCode()));
         sendBuf.writeInt((msg.getHeader().getLength()));
-        sendBuf.writeLong((msg.getHeader().getSessionID()));
+//        sendBuf.writeLong((msg.getHeader().getSessionID()));
         sendBuf.writeByte((msg.getHeader().getType()));
         sendBuf.writeByte((msg.getHeader().getPriority()));
         sendBuf.writeInt((msg.getHeader().getAttachment().size()));

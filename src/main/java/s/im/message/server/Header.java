@@ -17,6 +17,7 @@ package s.im.message.server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class Header {
 
@@ -24,11 +25,13 @@ public final class Header {
 
     private int length;// 消息长度
 
-    private long sessionID;// 会话ID
+    private String sessionID;// 会话ID
 
     private byte type;// 消息类型
 
     private byte priority;// 消息优先级
+
+    private String messageId = UUID.randomUUID().toString();
 
     private Map<String, Object> attachment = new HashMap<String, Object>(); // 附件
 
@@ -65,7 +68,7 @@ public final class Header {
     /**
      * @return the sessionID
      */
-    public final long getSessionID() {
+    public final String getSessionID() {
 	return sessionID;
     }
 
@@ -73,7 +76,7 @@ public final class Header {
      * @param sessionID
      *            the sessionID to set
      */
-    public final void setSessionID(long sessionID) {
+    public final void setSessionID(String sessionID) {
 	this.sessionID = sessionID;
     }
 
@@ -122,16 +125,24 @@ public final class Header {
 	this.attachment = attachment;
     }
 
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
+    }
+
     /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
+         * (non-Javadoc)
+         *
+         * @see java.lang.Object#toString()
+         */
     @Override
     public String toString() {
 	return "Header [crcCode=" + crcCode + ", length=" + length
-		+ ", sessionID=" + sessionID + ", type=" + type + ", priority="
-		+ priority + ", attachment=" + attachment + "]";
+		+ ", sessionID=" + sessionID + ", type=" + type + ", messageId="
+		+ messageId + ", attachment=" + attachment + "]";
     }
 
 }

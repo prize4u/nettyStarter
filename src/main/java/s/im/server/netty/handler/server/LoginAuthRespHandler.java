@@ -20,11 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
 import s.im.entity.HostConnectionDetail;
-import s.im.message.server.MessageType;
+import s.im.message.MessageType;
 import s.im.message.server.NettyMessage;
 import s.im.message.server.NettyMessageFactory;
 import s.im.server.netty.api.IMNettyServer;
-import s.im.utils.ChannelHandlerContextUtils;
+import s.im.util.ChannelHandlerContextUtils;
 
 import java.util.Date;
 
@@ -46,22 +46,24 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
         // 如果是握手请求消息，处理，其它消息透传
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_REQ.value()) {
             HostConnectionDetail connDetail = newConnectionDetail(ctx);
-            LOGGER.info("服务端接受login请求消息 {} --> {} with message {}", connDetail.getSrcHost(), connDetail.getDestHost(), message);
+//            LOGGER.info("服务端接受login请求消息 {} --> {} with message {}", connDetail.getSrcHost(), connDetail.getDestHost(), message);
             NettyMessage loginResp = null;
             // 重复登陆，拒绝
-            if (serverInstance.existIncomeConnection(connDetail.getSrcHost(), connDetail.getDestHost())) {
-                LOGGER.info("{} 已经在 {} 登录, 拒绝登录请求.", connDetail.getSrcHost(), connDetail.getDestHost());
+//                if (serverInstance.existIncomeConnection(connDetail.getSrcHost(), connDetail.getDestHost())) {
+            if (serverInstance.existInConn(connDetail.getDestHost())) {
+//                LOGGER.info("{} 已经在 {} 登录, 拒绝登录请求.", connDetail.getSrcHost(), connDetail.getDestHost());
                 loginResp = NettyMessageFactory.newLoginResp((byte) -1);
             } else {
                 // record login date
-                boolean acceptedHost = serverInstance.isAcceptedHost(connDetail.getSrcHost().getIpAddress());
+                boolean acceptedHost = serverInstance.canAcceptedHost(connDetail.getSrcHost().getIpAddress());
                 if (acceptedHost) {
-                    serverInstance.reocrdIncomeRemoteLogin(connDetail);
-                    LOGGER.info("登录成功 : {}", connDetail);
+                    serverInstance.recordIn(connDetail.getDestHost());
+//                    serverInstance.recordIncomeRemoteLogin(connDetail);
+//                    LOGGER.info("登录成功 : {}", connDetail);
                 }
                 loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
             }
-            LOGGER.info("发送登录返回消息 {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
+//            LOGGER.info("发送登录返回消息 {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
             ctx.writeAndFlush(loginResp);
         } else {
             ctx.fireChannelRead(msg);
@@ -77,12 +79,13 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
 
     private void removeRemoteHostFromServerCache(ChannelHandlerContext ctx) {
         AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-        serverInstance.removeIncomeRemoteLogin(remoteAddressInfo, this.serverServicingAddressInfo, ctx.channel());
+        serverInstance.deregistInChannel(remoteAddressInfo, ctx.channel());
+//        serverInstance.removeIncomeRemoteLogin(remoteAddressInfo, this.serverServicingAddressInfo, ctx.channel());
         LOGGER.info("remove host {} from connected remote ip, new connected remote ip: {} ", remoteAddressInfo, serverInstance.getIncomeRemoteHostDetail());
     }
 
     private HostConnectionDetail newConnectionDetail(ChannelHandlerContext ctx) {
         AddressInfo srcAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
-        return new HostConnectionDetail(srcAddress, serverServicingAddressInfo, ctx.channel(), new Date());
+        return new HostConnectionDetail(srcAddress, serverServicingAddressInfo, new Date());
     }
 }

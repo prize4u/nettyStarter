@@ -3,6 +3,6 @@ package s.im.entity;
 /**
  * Created by za-zhujun on 2017/4/18.
  */
-public enum NettyServerState {
+public enum ServerState {
     Starting, Running, Restarting, Stopping, Stopped
 }

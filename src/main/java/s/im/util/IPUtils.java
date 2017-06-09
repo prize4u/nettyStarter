@@ -1,4 +1,4 @@
-package s.im.utils;
+package s.im.util;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

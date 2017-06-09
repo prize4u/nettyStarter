@@ -20,12 +20,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
-import s.im.message.server.MessageType;
+import s.im.message.MessageType;
 import s.im.message.server.NettyMessage;
 import s.im.message.server.NettyMessageFactory;
 import s.im.server.netty.api.IMNettyServer;
-import s.im.service.api.ChannelRegistor;
-import s.im.utils.ChannelHandlerContextUtils;
+import s.im.util.ChannelHandlerContextUtils;
 
 public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatRespHandler.class);
@@ -43,7 +42,7 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
         AddressInfo remoteAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
         // client channel closed
         ctx.close();
-        serverInstance.removeIncomeRemoteLogin(remoteAddress, this.serverInstance.getAddressInfo(), ctx.channel());
+        serverInstance.registInChannel(remoteAddress, ctx.channel());
         LOGGER.info("服务端发现channel 失效 : {} --> {}", remoteAddress, this.serverInstance.getAddressInfo());
         ctx.fireChannelActive();
     }
@@ -54,9 +53,9 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
         // 返回心跳应答消息
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.HEARTBEAT_REQ.value()) {
             AddressInfo heartBeanFromAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-            LOGGER.info("服务器收到心跳请求 {} ---> {} with message {} ", heartBeanFromAddressInfo, serverAddressInfo, message);
+//            LOGGER.info("服务器收到心跳请求 {} ---> {} with message {} ", heartBeanFromAddressInfo, serverAddressInfo, message);
             NettyMessage heartBeat = NettyMessageFactory.newHeartBeanResp();
-            LOGGER.info("服务器发送心跳响应 {} ---> {} with message {} ", serverAddressInfo, heartBeanFromAddressInfo, message);
+//            LOGGER.info("服务器发送心跳响应 {} ---> {} with message {} ", serverAddressInfo, heartBeanFromAddressInfo, message);
             ctx.writeAndFlush(heartBeat);
         } else {
             ctx.fireChannelRead(msg);

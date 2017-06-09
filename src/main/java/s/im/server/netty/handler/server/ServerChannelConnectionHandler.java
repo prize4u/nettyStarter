@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
 import s.im.server.netty.api.IMNettyServer;
-import s.im.utils.ChannelHandlerContextUtils;
-import s.im.utils.Constant;
+import s.im.util.ChannelHandlerContextUtils;
+import s.im.util.Constant;
 
 public class ServerChannelConnectionHandler extends ChannelInboundHandlerAdapter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServerChannelConnectionHandler.class);
@@ -28,11 +28,12 @@ public class ServerChannelConnectionHandler extends ChannelInboundHandlerAdapter
 			if (event.state() == IdleState.READER_IDLE) {
 				noReadTime += Constant.SERVER_READ_IDEL_TIME_OUT;
 				loss_connect_time++;
-				LOGGER.info("{}秒没有接收到客户端的信息了", noReadTime);
+				LOGGER.info("{} 秒没有接收到客户端的信息了", noReadTime);
 				if (loss_connect_time >= 2) {
 					AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
 					LOGGER.info("服务端关闭Channel：{} -->{}", this.imNettyServer.getAddressInfo(), remoteAddressInfo);
-					this.imNettyServer.removeIncomeRemoteLogin(remoteAddressInfo, this.imNettyServer.getAddressInfo(), ctx.channel());
+					imNettyServer.deregistInChannel(remoteAddressInfo, ctx.channel());
+//					this.imNettyServer.removeIncomeRemoteLogin(remoteAddressInfo, this.imNettyServer.getAddressInfo(), ctx.channel());
 					ctx.channel().close();
 				}
 			}
