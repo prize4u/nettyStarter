@@ -18,7 +18,7 @@ public class ChannelHandlerContextUtils {
     public static AddressInfo getAddressInfo(Channel channel) {
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
-//        int port = socketAddress.getPort();
+        int port = socketAddress.getPort();
         return new AddressInfo(ipAddress);
     }
 

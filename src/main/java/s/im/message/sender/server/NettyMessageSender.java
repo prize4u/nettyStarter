@@ -80,14 +80,15 @@ public class NettyMessageSender implements ServerMessageSender {
         }
 
         private ChannelFuture doSendNettyMessage() {
-            LOGGER.info("查找连接到{} 的channel", remoteAddress);
-            Channel channel = imNettyServer.findInChannel(remoteAddress);
+            AddressInfo targetAddress = new AddressInfo(remoteAddress.getIpAddress());
+            LOGGER.info("查找连接到{} 的channel", targetAddress);
+            Channel channel = imNettyServer.findInChannel(targetAddress);
             if (channel != null && channel.isActive()) {
                 LOGGER.info("[{}/{}] 准备发送netty消息: {} -> {}, 消息ID：{}"
                         , currentSendCount
                         , maxSendCount
                         , imNettyServer.getAddressInfo()
-                        , remoteAddress, nettyMessage
+                        , targetAddress, nettyMessage
                         .getHeader().getSessionID());
                 ChannelFuture channelFuture = channel.writeAndFlush(nettyMessage);
                 channelFuture.addListener(new ChannelFutureListener() {
@@ -102,7 +103,7 @@ public class NettyMessageSender implements ServerMessageSender {
                 });
                 return channelFuture;
             } else {
-                LOGGER.info("channel不存在：{} -> {}", imNettyServer.getAddressInfo(), remoteAddress);
+                LOGGER.info("channel不存在：{} -> {}", imNettyServer.getAddressInfo(), targetAddress);
             }
             return null;
         }
