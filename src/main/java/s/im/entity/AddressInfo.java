@@ -7,11 +7,15 @@ import java.io.Serializable;
  */
 public class AddressInfo implements Serializable, Comparable<AddressInfo> {
     private final String ipAddress;
-    private final int port;
+    private int port;
 
     public AddressInfo(String ipAddress, int port) {
         this.ipAddress = ipAddress;
         this.port = port;
+    }
+
+    public AddressInfo(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public String getIpAddress() {

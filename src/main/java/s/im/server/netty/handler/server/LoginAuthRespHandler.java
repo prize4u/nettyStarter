@@ -50,15 +50,15 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
             NettyMessage loginResp = null;
             // 重复登陆，拒绝
 //                if (serverInstance.existIncomeConnection(connDetail.getSrcHost(), connDetail.getDestHost())) {
-            if (serverInstance.existInConn(connDetail.getDestHost())) {
+            if (serverInstance.existInConn(connDetail.getSrcHost())) {
                 LOGGER.info("{} 已经在 {} 登录, 拒绝登录请求.", connDetail.getSrcHost(), connDetail.getDestHost());
                 loginResp = NettyMessageFactory.newLoginResp((byte) -1);
             } else {
                 // record login date
                 boolean acceptedHost = serverInstance.canAcceptedHost(connDetail.getSrcHost().getIpAddress());
                 if (acceptedHost) {
-                    serverInstance.recordIn(connDetail.getDestHost());
-                    serverInstance.registInChannel(connDetail.getDestHost(), ctx.channel());
+                    serverInstance.recordIn(connDetail.getSrcHost());
+                    serverInstance.registInChannel(connDetail.getSrcHost(), ctx.channel());
                     LOGGER.info("登录成功 : {}", connDetail);
                 }
                 loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
