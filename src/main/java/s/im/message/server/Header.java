@@ -31,7 +31,7 @@ public final class Header {
 
     private byte priority;// 消息优先级
 
-    private String messageId = UUID.randomUUID().toString();
+    private String messageId;
 
     private Map<String, Object> attachment = new HashMap<String, Object>(); // 附件
 
@@ -69,7 +69,7 @@ public final class Header {
      * @return the sessionID
      */
     public final String getSessionID() {
-	return sessionID;
+	    return sessionID;
     }
 
     /**

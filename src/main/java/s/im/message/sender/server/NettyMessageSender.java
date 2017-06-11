@@ -88,8 +88,7 @@ public class NettyMessageSender implements ServerMessageSender {
                         , currentSendCount
                         , maxSendCount
                         , imNettyServer.getAddressInfo()
-                        , targetAddress, nettyMessage
-                        .getHeader().getSessionID());
+                        , targetAddress, nettyMessage.getHeader().getMessageId());
                 ChannelFuture channelFuture = channel.writeAndFlush(nettyMessage);
                 channelFuture.addListener(new ChannelFutureListener() {
                     @Override
