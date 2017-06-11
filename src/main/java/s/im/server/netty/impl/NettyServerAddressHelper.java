@@ -37,11 +37,11 @@ public class NettyServerAddressHelper implements InitializingBean {
         AddressInfo selfAddress = selfServicingAddress();
         config.setSelfAddressInfo(selfAddress);
 
-//        serverAddressInfos.remove(selfAddress);
-        int i = serverAddressInfos.indexOf(selfAddress);
-        if (i != -1 && i != serverAddressInfos.size() - 1) {
-            config.setTargetServerAddressInfo(serverAddressInfos.subList(i + 1, serverAddressInfos.size()));
-        }
+        serverAddressInfos.remove(selfAddress);
+//        int i = serverAddressInfos.indexOf(selfAddress);
+//        if (i != -1 && i != serverAddressInfos.size() - 1) {
+//            config.setTargetServerAddressInfo(serverAddressInfos.subList(i + 1, serverAddressInfos.size()));
+//        }
         return config;
     }
 

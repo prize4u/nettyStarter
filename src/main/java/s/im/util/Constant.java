@@ -8,8 +8,8 @@ public class Constant {
     public static final String THEME_ID = "themeId";
     public static final String SERVANT_IDENTIFIER = "servantID";
     public static final String SERVANT_GROUP = "servantGroup";
-//    public static final String SELF_IP_ADDRESS = IPUtils.getIpAddress();
-    public static final String SELF_IP_ADDRESS = "127.0.0.1";
+    public static final String SELF_IP_ADDRESS = IPUtils.getIpAddress();
+//    public static final String SELF_IP_ADDRESS = "127.0.0.1";
     public static final Integer DEFAULT_BACKLOG = 1024;
     public static final String LOGIN_USER_NAME = "userName";
     public static final int NETTY_TIMEOUT_IN_SECONDS = 100;
