@@ -58,7 +58,7 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
                 boolean acceptedHost = serverInstance.canAcceptedHost(connDetail.getSrcHost().getIpAddress());
                 if (acceptedHost) {
                     serverInstance.recordIn(connDetail.getDestHost());
-//                    serverInstance.recordIncomeRemoteLogin(connDetail);
+                    serverInstance.registInChannel(connDetail.getDestHost(), ctx.channel());
                     LOGGER.info("登录成功 : {}", connDetail);
                 }
                 loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
