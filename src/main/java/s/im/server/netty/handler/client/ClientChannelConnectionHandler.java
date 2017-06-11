@@ -27,7 +27,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-//		LOGGER.info("客服端channel失效 : {} --> {}", this.imNettyClient.getAddressInfo(), remoteAddressInfo);
+		LOGGER.info("客服端channel失效 : {} --> {}", this.imNettyClient.getAddressInfo(), remoteAddressInfo);
 //		imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getAddressInfo(), remoteAddressInfo, ctx.channel());
 		imNettyClient.deregistOutChannel(remoteAddressInfo, ctx.channel());
 		imNettyClient.reconnect();
@@ -40,17 +40,17 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 			if (event.state() == IdleState.WRITER_IDLE) {
 				noWriteTimeInSeconds += Constant.CLIENT_WRITE_IDEL_TIME_OUT;
 				loss_connect_time++;
-//				LOGGER.info("{}秒没有向服务器 {} --> {} 写信息了", noWriteTimeInSeconds, this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
+				LOGGER.info("{}秒没有向服务器 {} --> {} 写信息了", noWriteTimeInSeconds, this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
 				if (loss_connect_time > 1) {
 					//
-//					LOGGER.info("链接丢失 {} --> {}", noWriteTimeInSeconds, this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
+					LOGGER.info("链接丢失 {} --> {}", noWriteTimeInSeconds, this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
 //					imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress(), ctx.channel());
 					imNettyClient.deregistOutChannel(this.imNettyClient.getConnectingRemoteAddress(), ctx.channel());
 					imNettyClient.reconnect();
 				} else {
 					// persistAndSend heart bean message
 					NettyMessage heatBeat = NettyMessageFactory.newHeartBeanReq();
-//					LOGGER.info("发送心跳请求 {} ---> {} with message {} ", this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress(), heatBeat);
+					LOGGER.info("发送心跳请求 {} ---> {} with message {} ", this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress(), heatBeat);
 					ctx.writeAndFlush(heatBeat);
 					noWriteTimeInSeconds = 0;
 				}
@@ -67,7 +67,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 		// 心跳响应
 		NettyMessage message = (NettyMessage) msg;
 		if (message.getHeader() != null && message.getHeader().getType() == MessageType.HEARTBEAT_RESP.value()) {
-//			LOGGER.info("收到心跳响应 {} ---> {} with message {} ", this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
+			LOGGER.info("收到心跳响应 {} ---> {} with message {} ", this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
 		}
 		ctx.fireChannelRead(msg);
 	}

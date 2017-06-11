@@ -33,7 +33,6 @@ public class ServerChannelConnectionHandler extends ChannelInboundHandlerAdapter
 					AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
 					LOGGER.info("服务端关闭Channel：{} -->{}", this.imNettyServer.getAddressInfo(), remoteAddressInfo);
 					imNettyServer.deregistInChannel(remoteAddressInfo, ctx.channel());
-//					this.imNettyServer.removeIncomeRemoteLogin(remoteAddressInfo, this.imNettyServer.getAddressInfo(), ctx.channel());
 					ctx.channel().close();
 				}
 			}

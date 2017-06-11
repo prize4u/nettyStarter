@@ -53,9 +53,9 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
         // 返回心跳应答消息
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.HEARTBEAT_REQ.value()) {
             AddressInfo heartBeanFromAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-//            LOGGER.info("服务器收到心跳请求 {} ---> {} with message {} ", heartBeanFromAddressInfo, serverAddressInfo, message);
+            LOGGER.info("服务器收到心跳请求 {} ---> {} with message {} ", heartBeanFromAddressInfo, serverAddressInfo, message);
             NettyMessage heartBeat = NettyMessageFactory.newHeartBeanResp();
-//            LOGGER.info("服务器发送心跳响应 {} ---> {} with message {} ", serverAddressInfo, heartBeanFromAddressInfo, message);
+            LOGGER.info("服务器发送心跳响应 {} ---> {} with message {} ", serverAddressInfo, heartBeanFromAddressInfo, message);
             ctx.writeAndFlush(heartBeat);
         } else {
             ctx.fireChannelRead(msg);
