@@ -5,6 +5,8 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -76,17 +78,18 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws IOException {
-                    ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
-                    ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
-                    ch.pipeline().addLast(new NettyMessageEncoder());
-
-//                ch.pipeline().addLast(new ClientConnectionHandler(serverInstance));
-//                ch.pipeline().addLast("readTimeoutHandler", new ReadTimeoutHandler(Constant.NETTY_TIMEOUT_IN_SECONDS));
-                    ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this,
-                            nettyMessageHandler));
+                    ch.pipeline().addLast("decoder", new StringDecoder());
+                    ch.pipeline().addLast("encoder", new StringEncoder());
+                    ch.pipeline().addLast(new HelloWorldServerHandler(IMNettyServerImpl.this));
+//                    ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+//                    ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
+//                    ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
+//                    ch.pipeline().addLast(new NettyMessageEncoder());
+//
+//                    ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
+//                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
+//                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this,
+//                            nettyMessageHandler));
 
             }
         });
