@@ -54,8 +54,8 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
                     ctx);
             LOGGER.info("客户端接收登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.nettyClient
                     .getAddressInfo(), message);
-            byte loginResult = (byte) message.getBody();
-            if (loginResult != (byte) 1) {
+            int loginResult =  (int) message.getBody();
+            if (loginResult != 1) {
                 // 握手失败，关闭连接
                 LOGGER.error("客户端登录失败 {} --> {}. 关闭通道", this.nettyClient.getAddressInfo(), remoteAddressInfo);
                 ctx.close();
