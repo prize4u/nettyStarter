@@ -7,12 +7,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import s.im.entity.AddressInfo;
+import s.im.message.MessageType;
+import s.im.message.sender.server.ServerMessageSender;
+import s.im.message.server.Header;
+import s.im.message.server.NettyMessage;
 import s.im.service.ClientChatService;
 import s.im.service.mq.api.MessageQueueService;
 import s.im.service.mq.api.MessageServiceException;
 import s.im.util.Constant;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 /**
  * Created by za-zhujun on 2017/5/30.
@@ -24,6 +30,8 @@ public class ServantServiceController {
     private MessageQueueService messageQueueService;
     @Autowired
     private ClientChatService clientChatService;
+    @Autowired
+    private ServerMessageSender serverMessageSender;
 
     @RequestMapping(value = "enqueue", method = RequestMethod.GET)
     public String addClientToServiceQueue(String userName) {
@@ -62,5 +70,27 @@ public class ServantServiceController {
         } catch (MessageServiceException e) {
             e.printStackTrace();
         }
+    }
+
+    @RequestMapping(value = "testMessage", method = RequestMethod.GET)
+    public String sendServerMessage() {
+        setResponse();
+        try {
+            NettyMessage nettyMessage = newTestServiceMsg();
+            serverMessageSender.send(new AddressInfo("192.168.0.100"), nettyMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "ok";
+    }
+
+    public static NettyMessage newTestServiceMsg() {
+        NettyMessage message = new NettyMessage();
+        Header header = new Header();
+        header.setType(MessageType.SERVICE_REQ.value());
+        header.setMessageId(UUID.randomUUID().toString());
+        message.setHeader(header);
+        message.setBody("HELLO WORLD");
+        return message;
     }
 }

@@ -135,7 +135,20 @@
                     alert("failed");
                 }
             });
+        }
 
+        function sendTestMessage() {
+            var address = 'http://localhost:8081/api/testMessage';
+            $.ajax({
+                type : "get",
+                url: address,
+                success : function () {
+                    alert("ok");
+                },
+                fail : function () {
+                    alert("failed");
+                }
+            });
         }
 
         $(document).keydown(function (e) {
@@ -161,6 +174,7 @@
     <button type="button" onClick="sendMessage()" class="btn" id="send">Send</button>
     <button type="button" onClick="sendDisconnect()" class="btn">Disconnect</button>
     <button type="button" onClick="nextClient()" class="btn">Next</button>
+    <button type="button" onClick="sendTestMessage()" class="btn">MSG</button>
 </form>
 
 

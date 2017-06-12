@@ -94,6 +94,7 @@ public class NettyMessageSender implements ServerMessageSender {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
+                            LOGGER.error("", future.cause());
                             success = false;
                         } else {
                             success = true;
