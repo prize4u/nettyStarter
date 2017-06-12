@@ -1,6 +1,7 @@
 package s.im.connection.client;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import s.im.connection.client.api.ClientConnectionChannel;
 import s.im.connection.client.api.ClientConnectionHandler;
@@ -27,6 +28,8 @@ public class DefaultClientConnectionHandler implements ClientConnectionHandler {
     private UserService userService;
     @Autowired
     private ClientMessageService clientMessageService;
+    @Value("${socketio.starting.port}")
+    private int socketioConnPort;
 
     @Override
     public void onConnect(ClientConnectionChannel clientChannel) {
@@ -47,7 +50,7 @@ public class DefaultClientConnectionHandler implements ClientConnectionHandler {
         IMUser user = new IMUser();
         user.setUserName(clientChannel.get(Constant.LOGIN_USER_NAME));
         user.setLoginDate(new Date());
-        user.setLoginServer(new AddressInfo(Constant.SELF_IP_ADDRESS, 9092));
+        user.setLoginServer(new AddressInfo(Constant.SELF_IP_ADDRESS, socketioConnPort));
         user.setRemoteServer(clientChannel.getRemoteAddress());
         user.setSessionId(clientChannel.getSessionId());
         return user;
