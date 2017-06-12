@@ -2,6 +2,7 @@ package s.im.server.netty.impl;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.IMNettyServer;
 import s.im.util.ChannelHandlerContextUtils;
 import s.netty.heartbean.HelloWorldServer;
@@ -23,7 +24,9 @@ public class HelloWorldServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         System.out.println("server channelRead..");
-        System.out.println(ctx.channel().remoteAddress()+"->Server :"+ msg.toString());
+        if (msg instanceof NettyMessage) {
+            System.out.println(ctx.channel().remoteAddress()+"->Server :"+ msg.toString());
+        }
         ctx.flush();
     }
     

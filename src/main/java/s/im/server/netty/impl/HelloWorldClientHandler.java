@@ -2,6 +2,7 @@ package s.im.server.netty.impl;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import s.im.message.server.NettyMessage;
 
 public class HelloWorldClientHandler extends ChannelInboundHandlerAdapter{
     
@@ -14,7 +15,9 @@ public class HelloWorldClientHandler extends ChannelInboundHandlerAdapter{
   
       @Override
       public void channelRead(ChannelHandlerContext ctx, Object msg) {
-         System.out.println("HelloWorldClientHandler read Message:"+msg);
+          if (msg instanceof NettyMessage) {
+              System.out.println("HelloWorldClientHandler read Message:"+msg);
+          }
       }
       
       @Override

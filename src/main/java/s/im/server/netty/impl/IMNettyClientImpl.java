@@ -11,6 +11,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import s.im.entity.AddressInfo;
+import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.AbstractIMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.codec.NettyMessageDecoder;
@@ -49,8 +50,9 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline p = ch.pipeline();
-                        p.addLast("decoder", new StringDecoder());
-                        p.addLast("encoder", new StringEncoder());
+                        p.addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+                        p.addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage
+                                .class));
                         p.addLast(new HelloWorldClientHandler());
 
 //                        ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));

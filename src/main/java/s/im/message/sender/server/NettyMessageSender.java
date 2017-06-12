@@ -14,6 +14,7 @@ import s.im.server.netty.api.IMNettyServer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by za-zhujun on 2017/6/9.
@@ -36,9 +37,9 @@ public class NettyMessageSender implements ServerMessageSender {
         AddressInfo remoteAddress;
         NettyMessage nettyMessage;
         boolean success;
-        int maxSendCount = 3;
+        int maxSendCount = 2;
         long intervalBeforeRetry = 1000L;
-        int currentSendCount = 1;
+        AtomicInteger currentSendCount = new AtomicInteger(1);
 
         NettyMessageSenderThread(AddressInfo remoteAddress, NettyMessage nettyMessage) {
             this.remoteAddress = remoteAddress;
@@ -47,11 +48,10 @@ public class NettyMessageSender implements ServerMessageSender {
 
         @Override
         public void run() {
-            synSendMessage();
+            sendMessage();
 
-            while(!success && currentSendCount <= maxSendCount) {
-                currentSendCount++;
-                synSendMessage();
+            while(!success && currentSendCount.incrementAndGet() <= maxSendCount) {
+                sendMessage();
                 if (!success) {
                     // wait specified interval before re-persistAndSend
                     try {
@@ -68,12 +68,13 @@ public class NettyMessageSender implements ServerMessageSender {
             }
         }
 
-        private void synSendMessage() {
+        private void sendMessage() {
             ChannelFuture channelFuture = doSendNettyMessage();
             try {
                 if (channelFuture != null) {
                     channelFuture.get();
                 }
+                Thread.sleep(2000);
             } catch (Exception e) {
                 LOGGER.error("发送netty消息错误！！", e);
             }
@@ -85,18 +86,19 @@ public class NettyMessageSender implements ServerMessageSender {
             Channel channel = imNettyServer.findInChannel(targetAddress);
             if (channel != null && channel.isActive()) {
                 LOGGER.info("[{}/{}] 准备发送netty消息: {} -> {}, 消息ID：{}"
-                        , currentSendCount
+                        , currentSendCount.get()
                         , maxSendCount
                         , imNettyServer.getAddressInfo()
                         , targetAddress, nettyMessage.getHeader().getMessageId());
-                ChannelFuture channelFuture = channel.writeAndFlush(nettyMessage);
+                ChannelFuture channelFuture = channel.writeAndFlush(nettyMessage.getBody());
                 channelFuture.addListener(new ChannelFutureListener() {
                     @Override
                     public void operationComplete(ChannelFuture future) throws Exception {
                         if (!future.isSuccess()) {
-                            LOGGER.error("", future.cause());
+                            LOGGER.error("发送错误", future.cause());
                             success = false;
                         } else {
+                            LOGGER.info("发送成功！！！！！！");
                             success = true;
                         }
                     }
