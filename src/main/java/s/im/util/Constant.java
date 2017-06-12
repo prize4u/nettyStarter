@@ -36,5 +36,6 @@ public class Constant {
     public static final String TRAFFIC_MESSAGE_TYPE = "traffic_message_type";
     public static final String TRAFFIC_MESSAGE_FROM = "traffic_message_from";
     public static final String TRAFFIC_MESSAGE_TO = "traffic_message_to";
+    public static final String TRAFFIC_MESSAGE_SEND_TIME = "traffic_message_send_time";
 
 }

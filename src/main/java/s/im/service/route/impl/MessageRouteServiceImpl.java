@@ -54,28 +54,33 @@ public class MessageRouteServiceImpl implements MessageRouteService {
 
         @Override
         public void run() {
-            String messageTo = chatMessageDO.getMessageTo();
-            if (userService.isUserOnLine(messageTo)) {
-                if (userService.isLoginOnCurrentServer(messageTo)) {
-                    // sender and receiver login in same server
-                    clientMessageService.sendDirectly(ClientEventEnum.CHAT_EVENT, chatMessageDO);
-                } else {
-                    AddressInfo senderLoginAddress = userService.getLoginAddress(chatMessageDO.getMessageFrom());
-                    AddressInfo receiverLoginAddress = userService.getLoginAddress(messageTo);
-                    // in different server, persistAndSend to target server by netty, need route
-                    messagePersistService.updateRouteSendTime(chatMessageDO.getMessageId()
-                            , senderLoginAddress, receiverLoginAddress, new Date());
+            try {
+                String messageTo = chatMessageDO.getMessageTo();
+                if (userService.isUserOnLine(messageTo)) {
+                    if (userService.isLoginOnCurrentServer(messageTo)) {
+                        // sender and receiver login in same server
+                        clientMessageService.sendDirectly(ClientEventEnum.CHAT_EVENT, chatMessageDO);
+                    } else {
+                        AddressInfo senderLoginAddress = userService.getLoginAddress(chatMessageDO.getMessageFrom());
+                        AddressInfo receiverLoginAddress = userService.getLoginAddress(messageTo);
+                        // in different server, persistAndSend to target server by netty, need route
+                        messagePersistService.updateRouteSendTime(chatMessageDO.getMessageId()
+                                , senderLoginAddress, receiverLoginAddress, new Date());
 
-                    NettyMessage nettyMessage = NettyMessageFactory.clientMessageToNettyMessage(chatMessageDO);
-                    LOGGER.info("{} 登录在 {}， {} 登录在 {}， 需要netty路由 {}"
-                            , chatMessageDO.getMessageFrom(), senderLoginAddress
-                            , messageTo, receiverLoginAddress
-                            , nettyMessage);
-                    serverMessageSender.send(receiverLoginAddress, nettyMessage);
+                        NettyMessage nettyMessage = NettyMessageFactory.clientMessageToNettyMessage(chatMessageDO);
+                        LOGGER.info("{} 登录在 {}， {} 登录在 {}， 需要netty路由 {}"
+                                , chatMessageDO.getMessageFrom(), senderLoginAddress
+                                , messageTo, receiverLoginAddress
+                                , nettyMessage);
+                        serverMessageSender.send(receiverLoginAddress, nettyMessage);
+                    }
+                } else {
+                    LOGGER.warn("{} is not on line", messageTo);
                 }
-            } else {
-                LOGGER.warn("{} is not on line", messageTo);
+            } catch (Exception e) {
+                LOGGER.error("error route message", e);
             }
+
         }
     }
 }

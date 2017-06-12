@@ -5,6 +5,7 @@ import s.im.entity.domian.ChatMessageDO;
 import s.im.message.MessageType;
 import s.im.util.Constant;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -72,6 +73,7 @@ public class NettyMessageFactory {
         attachment.put(Constant.TRAFFIC_MESSAGE_TYPE, chatMessageDO.getContentType());
         attachment.put(Constant.TRAFFIC_MESSAGE_FROM, chatMessageDO.getMessageFrom());
         attachment.put(Constant.TRAFFIC_MESSAGE_TO, chatMessageDO.getMessageTo());
+        attachment.put(Constant.TRAFFIC_MESSAGE_SEND_TIME, chatMessageDO.getClientSendTime());
         header.setAttachment(attachment);
 
         message.setHeader(header);
@@ -86,6 +88,7 @@ public class NettyMessageFactory {
         message.setMessageFrom((String) attachment.get(Constant.TRAFFIC_MESSAGE_FROM));
         message.setMessageTo((String) attachment.get(Constant.TRAFFIC_MESSAGE_TO));
         message.setContentType((Integer)attachment.get(Constant.TRAFFIC_MESSAGE_TYPE));
+        message.setClientSendTime((Date) attachment.get(Constant.TRAFFIC_MESSAGE_SEND_TIME));
         message.setContent((String) nettyMessage.getBody());
         return message;
     }
