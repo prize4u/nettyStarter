@@ -85,6 +85,9 @@ public class NettyMessageSender implements ServerMessageSender {
             AddressInfo targetAddress = remoteAddress;
             LOGGER.info("查找连接到{} 的channel", targetAddress);
             Channel channel = imNettyServer.findInChannel(targetAddress);
+            if (channel == null) {
+                channel = imNettyServer.findOutChannel(targetAddress);
+            }
             if (channel != null && channel.isActive()) {
                 LOGGER.info("[{}/{}] 准备发送netty消息: {} -> {}, 消息ID：{}"
                         , currentSendCount.get()
