@@ -61,7 +61,7 @@ public class LoginAuthRespHandler extends ChannelInboundHandlerAdapter {
                     serverInstance.registInChannel(connDetail.getSrcHost(), ctx.channel());
                     LOGGER.info("登录成功 : {}", connDetail);
                 }
-                loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 0) : NettyMessageFactory.newLoginResp((byte) -1);
+                loginResp = acceptedHost ? NettyMessageFactory.newLoginResp((byte) 1) : NettyMessageFactory.newLoginResp((byte) -1);
             }
             LOGGER.info("发送登录返回消息 {} --> {} with message {}", this.serverServicingAddressInfo, connDetail.getSrcHost(), loginResp);
             ctx.writeAndFlush(loginResp);

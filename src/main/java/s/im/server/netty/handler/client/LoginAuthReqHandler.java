@@ -52,9 +52,10 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_RESP.value()) {
             AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(nettyClient.getAddressInfo(),
                     ctx);
-            LOGGER.info("客户端接受登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.nettyClient.getAddressInfo(), message);
+            LOGGER.info("客户端接收登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.nettyClient
+                    .getAddressInfo(), message);
             byte loginResult = (byte) message.getBody();
-            if (loginResult != (byte) 0) {
+            if (loginResult != (byte) 1) {
                 // 握手失败，关闭连接
                 LOGGER.error("客户端登录失败 {} --> {}. 关闭通道", this.nettyClient.getAddressInfo(), remoteAddressInfo);
                 ctx.close();
