@@ -64,7 +64,7 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
 //                                (IMNettyClientImpl.this, clienChatMessagePersistService));
 
                         ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageEncoder());
-                        ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+                        ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage.class));
                         ch.pipeline().addLast(new IdleStateHandler(Constant.CLIENT_READ_IDEL_TIME_OUT,
                                 Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
                         ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
