@@ -19,6 +19,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.aggregation.ArithmeticOperators;
 import s.im.entity.AddressInfo;
 import s.im.entity.ServerState;
 import s.im.message.MessageType;
@@ -30,17 +31,19 @@ import s.im.util.ChannelHandlerContextUtils;
 public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginAuthReqHandler.class);
     private IMNettyClient nettyClient;
-//    private AddressInfo selfConnectAddressInfo;
+    private AddressInfo selfConnectAddressInfo;
+    private AddressInfo remoteAddress;
 
     public LoginAuthReqHandler(IMNettyClient nettyClient) {
         this.nettyClient = nettyClient;
-//        this.selfConnectAddressInfo = this.nettyClient.getSelfAddressInfo();
+        this.remoteAddress = nettyClient.getConnectingRemoteAddress();
+        this.selfConnectAddressInfo = nettyClient.getNestedNettyServer().getAddressInfo();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         NettyMessage loginMessage = NettyMessageFactory.newLoginReq();
-        LOGGER.info("客户端发送login请求消息：{} --> {} with message {}", this.nettyClient.getAddressInfo(), this.nettyClient.getConnectingRemoteAddress(), loginMessage);
+        LOGGER.info("客户端发送login请求消息：{} --> {} with message {}", selfConnectAddressInfo, remoteAddress, loginMessage);
         ctx.writeAndFlush(loginMessage);
     }
 
@@ -50,19 +53,17 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
 
         // 如果是握手应答消息，需要判断是否认证成功
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_RESP.value()) {
-            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(nettyClient.getAddressInfo(),
-                    ctx);
-            LOGGER.info("客户端接收登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.nettyClient
-                    .getAddressInfo(), message);
-            int loginResult =  (int) message.getBody();
+            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(selfConnectAddressInfo, ctx);
+            LOGGER.info("客户端接收登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, selfConnectAddressInfo, message);
+            int loginResult = (int) message.getBody();
             if (loginResult != 1) {
                 // 握手失败，关闭连接
-                LOGGER.error("客户端登录失败 {} --> {}. 关闭通道", this.nettyClient.getAddressInfo(), remoteAddressInfo);
+                LOGGER.error("客户端登录失败 {} --> {}. 关闭通道", selfConnectAddressInfo, remoteAddressInfo);
                 ctx.close();
                 nettyClient.setServerStatus(ServerState.Stopped);
 //                nettyClient.setState(NettyServerConnectState.Disconnected);
             } else {
-                LOGGER.info("客户端登录成功 {} --> {}", remoteAddressInfo, this.nettyClient.getAddressInfo());
+                LOGGER.info("客户端登录成功 {} --> {}", remoteAddressInfo, selfConnectAddressInfo);
                 nettyClient.registOutChannel(remoteAddressInfo, ctx.channel());
 //                nettyClient.recordOutcomeRemoteLogin(selfConnectAddressInfo, remoteAddressInfo, ctx.channel(), new Date());
                 ctx.fireChannelRead(msg);
