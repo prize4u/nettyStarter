@@ -13,6 +13,7 @@ import s.im.entity.AddressInfo;
 import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.AbstractIMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
+import s.im.server.netty.handler.NettyMessageResponseHandler;
 import s.im.server.netty.handler.client.ClientChannelConnectionHandler;
 import s.im.server.netty.handler.client.LoginAuthReqHandler;
 import s.im.server.netty.handler.NettyMessageRequestHandler;
@@ -69,6 +70,7 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
                         ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
                         ch.pipeline().addLast("ServiceMessageRequestHandler", new NettyMessageRequestHandler
                                 (getAddressInfo(), serverDataHandler));
+                        ch.pipeline().addLast("ServiceMessageResponseHandler", new NettyMessageResponseHandler(getAddressInfo(), clienChatMessagePersistService));
                     }
                 });
 

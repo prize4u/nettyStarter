@@ -138,6 +138,7 @@ public class NettyServicingStarter implements FactoryBean<IMNettyServer> {
     private IMNettyServer initAndStartSelfAsNettyServer(AddressInfo selfAddressInfo) throws IMServerException {
         IMNettyServer nettyServer = new IMNettyServerImpl(selfAddressInfo);
         ((IMNettyServerImpl) nettyServer).setServerDataHandler(this.nettyMessageHandler);
+        ((IMNettyServerImpl) nettyServer).setClienChatMessagePersistService(this.clienChatMessagePersistService);
         nettyServer.setWhiteList(nettyServerAddressHelper.getServerWhiteListSet());
         nettyServer.start();
         return nettyServer;

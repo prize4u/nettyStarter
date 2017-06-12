@@ -15,11 +15,11 @@ import java.util.Date;
 
 public class NettyMessageResponseHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyMessageResponseHandler.class);
-    private IMNettyClient nettyClient;
+    private AddressInfo addressInfo;
     private ChatMessagePersistService clienChatMessagePersistService;
 
-    public NettyMessageResponseHandler(IMNettyClient nettyClient, ChatMessagePersistService clienChatMessagePersistService) {
-        this.nettyClient = nettyClient;
+    public NettyMessageResponseHandler(AddressInfo addressInfo, ChatMessagePersistService clienChatMessagePersistService) {
+        this.addressInfo = addressInfo;
         this.clienChatMessagePersistService = clienChatMessagePersistService;
     }
 
@@ -31,7 +31,7 @@ public class NettyMessageResponseHandler extends ChannelInboundHandlerAdapter {
             AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
             String ackMessageId = (String) message.getBody();
             LOGGER.info("{} 收到来自 {} 的确认消息，消息ID {}"
-                    , this.nettyClient.getAddressInfo()
+                    , addressInfo
                     , remoteAddressInfo
                     , ackMessageId);
 

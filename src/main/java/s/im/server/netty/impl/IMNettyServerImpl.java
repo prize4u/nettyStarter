@@ -17,7 +17,11 @@ import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.AbstractIMNettyServer;
 import s.im.server.netty.api.IMNettyClient;
 import s.im.server.netty.handler.NettyMessageRequestHandler;
-import s.im.server.netty.handler.server.*;
+import s.im.server.netty.handler.NettyMessageResponseHandler;
+import s.im.server.netty.handler.server.HeartBeatRespHandler;
+import s.im.server.netty.handler.server.LoginAuthRespHandler;
+import s.im.server.netty.handler.server.ServerChannelConnectionHandler;
+import s.im.service.ChatMessagePersistService;
 import s.im.util.Constant;
 
 import java.io.IOException;
@@ -33,8 +37,9 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private ServerBootstrap bootstrap;
-//    private ServerDataHandler nettyMessageHandler;
+    //    private ServerDataHandler nettyMessageHandler;
     private ServerDataHandler serverDataHandler;
+    ChatMessagePersistService clienChatMessagePersistService;
     private ConcurrentHashMap<String, IMNettyClient> nettyClientMap = new ConcurrentHashMap<>();
 
     public IMNettyServerImpl(AddressInfo addressInfo) {
@@ -67,27 +72,23 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
         bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 100)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new LoggingHandler(LogLevel.INFO))
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+        bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 100).option(ChannelOption.SO_KEEPALIVE, true).handler(new LoggingHandler(LogLevel.INFO)).childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws IOException {
-                    ch.pipeline().addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
-                    ch.pipeline().addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage.class));
+                ch.pipeline().addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+                ch.pipeline().addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage.class));
 
 //                    ch.pipeline().addLast(new HelloWorldServerHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
-                    ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
+                ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+                ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
 //                    ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
 //                    ch.pipeline().addLast(new NettyMessageEncoder());
 //
-                    ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
+                ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
+                ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
 //                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this, nettyMessageHandler));
-                ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageRequestHandler(getAddressInfo(), serverDataHandler));
+                ch.pipeline().addLast("ServiceMessageReqHandler", new NettyMessageRequestHandler(getAddressInfo(), serverDataHandler));
+                ch.pipeline().addLast("ServiceMessageRespHandler", new NettyMessageResponseHandler(getAddressInfo(), clienChatMessagePersistService));
             }
         });
         setServerStatus(ServerState.Starting);
@@ -132,6 +133,11 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
 //    public void setNettyMessageHandler(ServerDataHandler nettyMessageHandler) {
 //        this.nettyMessageHandler = nettyMessageHandler;
 //    }
+
+
+    public void setClienChatMessagePersistService(ChatMessagePersistService clienChatMessagePersistService) {
+        this.clienChatMessagePersistService = clienChatMessagePersistService;
+    }
 
     private String buildClientKey(AddressInfo srcHost, AddressInfo destHost) {
         return srcHost + "-->" + destHost;

@@ -31,25 +31,16 @@ public class NettyMessageRequestHandler extends ChannelInboundHandlerAdapter {
             String messageId = message.getHeader().getMessageId();
             LOGGER.info("{} 收到来自 {} 的请求消息， 消息：{}", addressInfo, remoteAddress, message);
 
-            // persistAndSend back ack message
+            // send back ack message
             NettyMessage nettyMessage = NettyMessageFactory.newServiceResp(messageId);
             ctx.writeAndFlush(nettyMessage);
 
-            serverDataHandler.onMessage(remoteAddress, nettyMessage);
+            // process
+            serverDataHandler.onMessage(remoteAddress, message);
         } else {
             ctx.fireChannelRead(msg);
         }
 
-        /*if (message.getHeader() != null && message.getHeader().getType() == MessageType.SERVICE_RESP.value()) {
-            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
-            String ackMessageId = (String) message.getBody();
-            LOGGER.info("{} 收到来自 {} 的确认消息，消息ID {}"
-                    , this.nettyClient.getAddressInfo()
-                    , remoteAddressInfo
-                    , ackMessageId);
-
-            // update
-            clienChatMessagePersistService.updateRouteAckTime(ackMessageId, new Date());
-        }*/
+        /**/
     }
 }
