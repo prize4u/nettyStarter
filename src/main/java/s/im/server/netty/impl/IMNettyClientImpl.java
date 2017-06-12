@@ -69,8 +69,7 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
                                 Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
                         ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
                         ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
-                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler
-                                (IMNettyClientImpl.this, clienChatMessagePersistService));
+                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler(IMNettyClientImpl.this, clienChatMessagePersistService));
                     }
                 });
 

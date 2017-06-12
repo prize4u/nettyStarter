@@ -77,7 +77,7 @@ public class ServantServiceController {
         setResponse();
         try {
             NettyMessage nettyMessage = newTestServiceMsg();
-            serverMessageSender.send(new AddressInfo("192.168.0.100"), nettyMessage);
+            serverMessageSender.send(new AddressInfo("127.0.0.1"), nettyMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }

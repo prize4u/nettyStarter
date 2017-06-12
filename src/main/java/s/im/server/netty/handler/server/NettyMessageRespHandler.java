@@ -33,7 +33,7 @@ public class NettyMessageRespHandler extends ChannelInboundHandlerAdapter {
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.SERVICE_REQ.value()) {
             AddressInfo remoteAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
             String messageId = message.getHeader().getMessageId();
-            LOGGER.info("{} 收到来自 {} 的请求消息， 消息ID：{}", serverServicingAddressInfo, remoteAddress, messageId);
+            LOGGER.info("{} 收到来自 {} 的请求消息， 消息：{}", serverServicingAddressInfo, remoteAddress, message);
 
             // persistAndSend back ack message
             NettyMessage nettyMessage = NettyMessageFactory.newServiceResp(messageId);
