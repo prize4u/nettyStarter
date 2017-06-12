@@ -34,4 +34,7 @@ public class Constant {
     // constant for netty message header attachment
     public static final String TRAFFIC_MESSAGE_ID = "traffic_message_id";
     public static final String TRAFFIC_MESSAGE_TYPE = "traffic_message_type";
+    public static final String TRAFFIC_MESSAGE_FROM = "traffic_message_from";
+    public static final String TRAFFIC_MESSAGE_TO = "traffic_message_to";
+
 }

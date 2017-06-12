@@ -22,4 +22,6 @@ public interface UserService {
     boolean isServant(String userName);
 
     boolean isUserOnLine(String userName);
+
+    boolean isLoginOnCurrentServer(String userName);
 }

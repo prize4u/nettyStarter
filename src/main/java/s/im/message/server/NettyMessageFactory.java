@@ -64,13 +64,14 @@ public class NettyMessageFactory {
         NettyMessage message = new NettyMessage();
         Header header = new Header();
         header.setType(MessageType.SERVICE_REQ.value());
-        header.setSessionID(chatMessageDO.getSessionId());
         header.setMessageId(UUID.randomUUID().toString());
         Map<String, Object> attachment = Maps.newHashMap();
 //        attachment.put(Constant.LOGIN_USER_NAME, chatMessageDO.getClientId());
 //        attachment.put(Constant.SERVANT_IDENTIFIER, chatMessageDO.getServantId());
-        attachment.put(Constant.TRAFFIC_MESSAGE_ID, chatMessageDO.getMessageId());
+//        attachment.put(Constant.TRAFFIC_MESSAGE_ID, chatMessageDO.getMessageId());
         attachment.put(Constant.TRAFFIC_MESSAGE_TYPE, chatMessageDO.getContentType());
+        attachment.put(Constant.TRAFFIC_MESSAGE_FROM, chatMessageDO.getMessageFrom());
+        attachment.put(Constant.TRAFFIC_MESSAGE_TO, chatMessageDO.getMessageTo());
 
         message.setHeader(header);
         message.setBody(chatMessageDO.getContent());
@@ -78,6 +79,13 @@ public class NettyMessageFactory {
     }
 
     public static ChatMessageDO nettyMessageToClientMessage(NettyMessage nettyMessage) {
-        return null;
+        ChatMessageDO message = new ChatMessageDO();
+        message.setMessageId(nettyMessage.getHeader().getMessageId());
+        Map<String, Object> attachment = nettyMessage.getHeader().getAttachment();
+        message.setMessageFrom((String) attachment.get(Constant.TRAFFIC_MESSAGE_FROM));
+        message.setMessageTo((String) attachment.get(Constant.TRAFFIC_MESSAGE_TO));
+        message.setContentType((Integer)attachment.get(Constant.TRAFFIC_MESSAGE_TYPE));
+        message.setContent((String) nettyMessage.getBody());
+        return message;
     }
 }

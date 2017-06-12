@@ -3,6 +3,7 @@ package s.im.service;
 import com.google.common.collect.Maps;
 import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import s.im.entity.AddressInfo;
 import s.im.entity.IMUser;
@@ -18,6 +19,8 @@ import java.util.Map;
 public class UserServiceImpl implements UserService {
     @Autowired
     private RedisCacheService cacheService;
+    @Value("${socketio.starting.port}")
+    private int socketioConnPort;
 
     @Override
     public void login(IMUser user) {
@@ -78,5 +81,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isUserOnLine(String userName) {
         return getLoginUser(userName) != null;
+    }
+
+    @Override
+    public boolean isLoginOnCurrentServer(String userName) {
+        boolean result = false;
+        IMUser loginUser = getLoginUser(userName);
+        if (loginUser != null) {
+            AddressInfo loginServer = loginUser.getLoginServer();
+            result = new AddressInfo(Constant.SELF_IP_ADDRESS, socketioConnPort).equals(loginServer);
+        }
+        return result;
     }
 }

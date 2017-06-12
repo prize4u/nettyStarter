@@ -15,6 +15,7 @@ import s.im.service.ChatMessagePersistService;
 import s.im.service.ClientMessageService;
 import s.im.service.UserService;
 import s.im.service.route.api.MessageRouteService;
+import s.im.util.Constant;
 
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
@@ -55,12 +56,12 @@ public class MessageRouteServiceImpl implements MessageRouteService {
         public void run() {
             String messageTo = chatMessageDO.getMessageTo();
             if (userService.isUserOnLine(messageTo)) {
-                AddressInfo senderLoginAddress = userService.getLoginAddress(chatMessageDO.getMessageFrom());
-                AddressInfo receiverLoginAddress = userService.getLoginAddress(messageTo);
-                if (senderLoginAddress.equals(receiverLoginAddress)) {
+                if (userService.isLoginOnCurrentServer(messageTo)) {
                     // sender and receiver login in same server
                     clientMessageService.sendDirectly(ClientEventEnum.CHAT_EVENT, chatMessageDO);
                 } else {
+                    AddressInfo senderLoginAddress = userService.getLoginAddress(chatMessageDO.getMessageFrom());
+                    AddressInfo receiverLoginAddress = userService.getLoginAddress(messageTo);
                     // in different server, persistAndSend to target server by netty, need route
                     messagePersistService.updateRouteSendTime(chatMessageDO.getMessageId()
                             , senderLoginAddress, receiverLoginAddress, new Date());
