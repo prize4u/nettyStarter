@@ -5,8 +5,6 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -18,10 +16,7 @@ import s.im.entity.ServerState;
 import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.AbstractIMNettyServer;
 import s.im.server.netty.api.IMNettyClient;
-import s.im.server.netty.api.IMNettyServer;
-import s.im.server.netty.codec.NettyMessageDecoder;
-import s.im.server.netty.codec.NettyMessageEncoder;
-import s.im.server.netty.handler.client.NettyMessageAckHandler;
+import s.im.server.netty.handler.NettyMessageRequestHandler;
 import s.im.server.netty.handler.server.*;
 import s.im.util.Constant;
 
@@ -39,6 +34,7 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
     private EventLoopGroup workerGroup;
     private ServerBootstrap bootstrap;
 //    private ServerDataHandler nettyMessageHandler;
+    private ServerDataHandler serverDataHandler;
     private ConcurrentHashMap<String, IMNettyClient> nettyClientMap = new ConcurrentHashMap<>();
 
     public IMNettyServerImpl(AddressInfo addressInfo) {
@@ -91,7 +87,7 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
                     ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
                     ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
 //                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this, nettyMessageHandler));
-                ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler());
+                ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageRequestHandler(getAddressInfo(), serverDataHandler));
             }
         });
         setServerStatus(ServerState.Starting);
@@ -117,8 +113,11 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
         return true;
     }
 
+    public void setServerDataHandler(ServerDataHandler serverDataHandler) {
+        this.serverDataHandler = serverDataHandler;
+    }
 
-//    @Override
+    //    @Override
 //    public List<IMNettyClient> getAllNettyClient() {
 //        return Lists.newArrayList(nettyClientMap.values());
 //    }

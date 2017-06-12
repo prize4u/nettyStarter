@@ -5,20 +5,17 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import s.im.connection.client.api.ServerDataHandler;
 import s.im.entity.AddressInfo;
 import s.im.message.server.NettyMessage;
 import s.im.server.netty.api.AbstractIMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
-import s.im.server.netty.codec.NettyMessageDecoder;
-import s.im.server.netty.codec.NettyMessageEncoder;
 import s.im.server.netty.handler.client.ClientChannelConnectionHandler;
 import s.im.server.netty.handler.client.LoginAuthReqHandler;
-import s.im.server.netty.handler.client.NettyMessageAckHandler;
+import s.im.server.netty.handler.NettyMessageRequestHandler;
 import s.im.service.ChatMessagePersistService;
 import s.im.util.Constant;
 
@@ -31,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class IMNettyClientImpl extends AbstractIMNettyClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(IMNettyClientImpl.class);
     private ChatMessagePersistService clienChatMessagePersistService;
+    private ServerDataHandler serverDataHandler;
     private EventLoopGroup eventLoop;
     private Channel channel;
 
@@ -60,7 +58,7 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
 //                                Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
 //                        ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
 //                        ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
-//                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler
+//                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageRequestHandler
 //                                (IMNettyClientImpl.this, clienChatMessagePersistService));
 
                         ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageEncoder());
@@ -69,7 +67,8 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
                                 Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
                         ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
                         ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
-                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler());
+                        ch.pipeline().addLast("ServiceMessageRequestHandler", new NettyMessageRequestHandler
+                                (getAddressInfo(), serverDataHandler));
                     }
                 });
 
@@ -168,6 +167,10 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
 
     public void setClienChatMessagePersistService(ChatMessagePersistService clienChatMessagePersistService) {
         this.clienChatMessagePersistService = clienChatMessagePersistService;
+    }
+
+    public void setServerDataHandler(ServerDataHandler serverDataHandler) {
+        this.serverDataHandler = serverDataHandler;
     }
 
     @Override

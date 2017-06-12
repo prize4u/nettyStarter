@@ -1,7 +1,5 @@
 package s.im.message;
 
-import org.springframework.amqp.core.Message;
-
 public enum MessageType {
 
     // server related
@@ -26,7 +24,7 @@ public enum MessageType {
     ;
     private byte value;
 
-    private MessageType(byte value) {
+    MessageType(byte value) {
         this.value = value;
     }
 
