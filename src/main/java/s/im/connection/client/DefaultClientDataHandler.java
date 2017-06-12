@@ -41,7 +41,7 @@ public class DefaultClientDataHandler implements ClientDataHandler {
 
         String toUserName = clientChannel.get(Constant.CHATTING_WITH);
         if (StringUtils.isBlank(toUserName)) {
-            IMUser chattingTargetUser = chatStateService.findChattingTarget(toUserName, chattingSessionId);
+            IMUser chattingTargetUser = chatStateService.findChattingTarget(fromUserName, chattingSessionId);
             toUserName = chattingTargetUser.getUserName();
         }
 
