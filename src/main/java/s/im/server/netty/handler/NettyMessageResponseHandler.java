@@ -28,7 +28,7 @@ public class NettyMessageResponseHandler extends ChannelInboundHandlerAdapter {
         NettyMessage message = (NettyMessage) msg;
 
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.SERVICE_RESP.value()) {
-            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
+            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(addressInfo, ctx);
             String ackMessageId = (String) message.getBody();
             LOGGER.info("{} 收到来自 {} 的确认消息，消息ID {}"
                     , addressInfo

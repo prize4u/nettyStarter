@@ -11,15 +11,20 @@ import java.net.InetSocketAddress;
  */
 public class ChannelHandlerContextUtils {
 
-    public static AddressInfo getAddressInfo(ChannelHandlerContext ctx) {
-        return getAddressInfo(ctx.channel());
+    public static AddressInfo getAddressInfo(AddressInfo selfAddress, ChannelHandlerContext ctx) {
+        return getAddressInfo(selfAddress, ctx.channel());
     }
 
-    public static AddressInfo getAddressInfo(Channel channel) {
+    public static AddressInfo getAddressInfo(AddressInfo selfAddress, Channel channel) {
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
-        int port = socketAddress.getPort();
-        return new AddressInfo(ipAddress);
+        int targetPort;
+        if (selfAddress.getPort() == 9090) {
+            targetPort = 9091;
+        } else {
+            targetPort = 9090;
+        }
+        return new AddressInfo(ipAddress, targetPort);
     }
 
 }

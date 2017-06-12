@@ -30,7 +30,8 @@ public class ServerChannelConnectionHandler extends ChannelInboundHandlerAdapter
 				loss_connect_time++;
 				LOGGER.info("{} 秒没有接收到客户端的信息了", noReadTime);
 				if (loss_connect_time >= 2) {
-					AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
+					AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(imNettyServer
+							.getAddressInfo(), ctx);
 					LOGGER.info("服务端关闭Channel：{} -->{}", this.imNettyServer.getAddressInfo(), remoteAddressInfo);
 					imNettyServer.deregistInChannel(remoteAddressInfo, ctx.channel());
 					ctx.channel().close();

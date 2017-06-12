@@ -82,7 +82,7 @@ public class NettyMessageSender implements ServerMessageSender {
         }
 
         private ChannelFuture doSendNettyMessage() {
-            AddressInfo targetAddress = new AddressInfo(remoteAddress.getIpAddress());
+            AddressInfo targetAddress = remoteAddress;
             LOGGER.info("查找连接到{} 的channel", targetAddress);
             Channel channel = imNettyServer.findInChannel(targetAddress);
             if (channel != null && channel.isActive()) {

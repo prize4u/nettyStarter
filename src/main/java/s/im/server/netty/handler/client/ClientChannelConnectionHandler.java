@@ -26,7 +26,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
+		AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(imNettyClient.getAddressInfo(), ctx);
 		LOGGER.info("客服端channel失效 : {} --> {}", this.imNettyClient.getAddressInfo(), remoteAddressInfo);
 		imNettyClient.deregistOutChannel(remoteAddressInfo, ctx.channel());
 		imNettyClient.reconnect();
@@ -44,7 +44,7 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 					//
 					LOGGER.info("链接丢失 {} --> {}", noWriteTimeInSeconds, this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress());
 //					imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getAddressInfo(), this.imNettyClient.getConnectingRemoteAddress(), ctx.channel());
-					imNettyClient.deregistOutChannel(this.imNettyClient.getConnectingRemoteAddress(), ctx.channel());
+					imNettyClient.deregistOutChannel(ChannelHandlerContextUtils.getAddressInfo(imNettyClient.getAddressInfo(), ctx), ctx.channel());
 					imNettyClient.reconnect();
 				} else {
 					// persistAndSend heart bean message

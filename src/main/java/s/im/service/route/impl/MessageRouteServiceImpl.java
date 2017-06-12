@@ -1,8 +1,10 @@
 package s.im.service.route.impl;
 
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import s.im.entity.AddressInfo;
 import s.im.entity.domian.ChatMessageDO;
@@ -36,6 +38,9 @@ public class MessageRouteServiceImpl implements MessageRouteService {
     private ClientMessageService clientMessageService;
     @Autowired
     private ChatMessagePersistService messagePersistService;
+
+    @Value("${netty.server.selfport}")
+    private int selfServicingPort;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(5);
 
@@ -72,7 +77,14 @@ public class MessageRouteServiceImpl implements MessageRouteService {
                                 , chatMessageDO.getMessageFrom(), senderLoginAddress
                                 , messageTo, receiverLoginAddress
                                 , nettyMessage);
-                        serverMessageSender.send(receiverLoginAddress, nettyMessage);
+
+                        int targetPort;
+                        if (selfServicingPort == 9090) {
+                            targetPort = 9091;
+                        } else {
+                            targetPort = 9090;
+                        }
+                        serverMessageSender.send(new AddressInfo(Constant.SELF_IP_ADDRESS, targetPort), nettyMessage);
                     }
                 } else {
                     LOGGER.warn("{} is not on line", messageTo);

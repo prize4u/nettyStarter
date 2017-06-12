@@ -9,7 +9,6 @@ import s.im.entity.AddressInfo;
 import s.im.message.MessageType;
 import s.im.message.server.NettyMessage;
 import s.im.message.server.NettyMessageFactory;
-import s.im.server.netty.api.IMNettyClient;
 import s.im.util.ChannelHandlerContextUtils;
 
 public class NettyMessageRequestHandler extends ChannelInboundHandlerAdapter {
@@ -27,7 +26,7 @@ public class NettyMessageRequestHandler extends ChannelInboundHandlerAdapter {
         NettyMessage message = (NettyMessage) msg;
 
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.SERVICE_REQ.value()) {
-            AddressInfo remoteAddress = ChannelHandlerContextUtils.getAddressInfo(ctx);
+            AddressInfo remoteAddress = ChannelHandlerContextUtils.getAddressInfo(addressInfo, ctx);
             String messageId = message.getHeader().getMessageId();
             LOGGER.info("{} 收到来自 {} 的请求消息， 消息：{}", addressInfo, remoteAddress, message);
 

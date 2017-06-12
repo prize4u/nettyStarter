@@ -50,7 +50,8 @@ public class LoginAuthReqHandler extends ChannelInboundHandlerAdapter {
 
         // 如果是握手应答消息，需要判断是否认证成功
         if (message.getHeader() != null && message.getHeader().getType() == MessageType.LOGIN_RESP.value()) {
-            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
+            AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(nettyClient.getAddressInfo(),
+                    ctx);
             LOGGER.info("客户端接受登录返回消息 RESP {} --> {} with message {}", remoteAddressInfo, this.nettyClient.getAddressInfo(), message);
             byte loginResult = (byte) message.getBody();
             if (loginResult != (byte) 0) {
