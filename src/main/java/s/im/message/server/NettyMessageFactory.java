@@ -72,7 +72,7 @@ public class NettyMessageFactory {
         attachment.put(Constant.TRAFFIC_MESSAGE_TYPE, chatMessageDO.getContentType());
         attachment.put(Constant.TRAFFIC_MESSAGE_FROM, chatMessageDO.getMessageFrom());
         attachment.put(Constant.TRAFFIC_MESSAGE_TO, chatMessageDO.getMessageTo());
-        message.getHeader().setAttachment(attachment);
+        header.setAttachment(attachment);
 
         message.setHeader(header);
         message.setBody(chatMessageDO.getContent());
