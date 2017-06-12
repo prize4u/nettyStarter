@@ -28,7 +28,6 @@ public class ClientChannelConnectionHandler extends ChannelInboundHandlerAdapter
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		AddressInfo remoteAddressInfo = ChannelHandlerContextUtils.getAddressInfo(ctx);
 		LOGGER.info("客服端channel失效 : {} --> {}", this.imNettyClient.getAddressInfo(), remoteAddressInfo);
-//		imNettyClient.removeOutcomeRemoteLogin(this.imNettyClient.getAddressInfo(), remoteAddressInfo, ctx.channel());
 		imNettyClient.deregistOutChannel(remoteAddressInfo, ctx.channel());
 		imNettyClient.reconnect();
 	}

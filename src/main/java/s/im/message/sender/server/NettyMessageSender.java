@@ -71,9 +71,10 @@ public class NettyMessageSender implements ServerMessageSender {
         private void sendMessage() {
             ChannelFuture channelFuture = doSendNettyMessage();
             try {
-                if (channelFuture != null) {
+                // future.get() not work. so sleep
+                /*if (channelFuture != null) {
                     channelFuture.get();
-                }
+                }*/
                 Thread.sleep(2000);
             } catch (Exception e) {
                 LOGGER.error("发送netty消息错误！！", e);

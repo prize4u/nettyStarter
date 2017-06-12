@@ -70,7 +70,6 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
         bootstrap = new ServerBootstrap();
-        final IMNettyServer serverInstance = this;
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 100)
@@ -80,18 +79,17 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
             @Override
             public void initChannel(SocketChannel ch) throws IOException {
                     ch.pipeline().addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
-                    ch.pipeline().addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage
-                        .class));
-                    ch.pipeline().addLast(new HelloWorldServerHandler(IMNettyServerImpl.this));
-//                    ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
-//                    ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
+                    ch.pipeline().addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage.class));
+
+//                    ch.pipeline().addLast(new HelloWorldServerHandler(IMNettyServerImpl.this));
+                    ch.pipeline().addLast(new IdleStateHandler(Constant.SERVER_READ_IDEL_TIME_OUT, Constant.SERVER_WRITE_IDEL_TIME_OUT, Constant.SERVER_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+                    ch.pipeline().addLast(new ServerChannelConnectionHandler(IMNettyServerImpl.this));
 //                    ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
 //                    ch.pipeline().addLast(new NettyMessageEncoder());
 //
-//                    ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
-//                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
-//                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this,
-//                            nettyMessageHandler));
+                    ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
+                    ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
+                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this, nettyMessageHandler));
 
             }
         });

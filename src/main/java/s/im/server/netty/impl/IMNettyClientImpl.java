@@ -49,11 +49,10 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline p = ch.pipeline();
-                        p.addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
-                        p.addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage
-                                .class));
-                        p.addLast(new HelloWorldClientHandler());
+//                        ChannelPipeline p = ch.pipeline();
+//                        p.addLast("decoder", new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+//                        p.addLast("encoder", new s.im.server.netty.codec.jackson.NettyMessageDecoder<>(NettyMessage.class));
+//                        p.addLast(new HelloWorldClientHandler());
 
 //                        ch.pipeline().addLast(new NettyMessageDecoder(1024 * 1024, 4, 4));
 //                        ch.pipeline().addLast("MessageEncoder", new NettyMessageEncoder());
@@ -63,6 +62,15 @@ public class IMNettyClientImpl extends AbstractIMNettyClient {
 //                        ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
 //                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler
 //                                (IMNettyClientImpl.this, clienChatMessagePersistService));
+
+                        ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+                        ch.pipeline().addLast(new s.im.server.netty.codec.jackson.NettyMessageEncoder());
+                        ch.pipeline().addLast(new IdleStateHandler(Constant.CLIENT_READ_IDEL_TIME_OUT,
+                                Constant.CLIENT_WRITE_IDEL_TIME_OUT, Constant.CLIENT_ALL_IDEL_TIME_OUT, TimeUnit.SECONDS));
+                        ch.pipeline().addLast("connectHandler", new ClientChannelConnectionHandler(IMNettyClientImpl.this));
+                        ch.pipeline().addLast("LoginAuthHandler", new LoginAuthReqHandler(IMNettyClientImpl.this));
+                        ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler
+                                (IMNettyClientImpl.this, clienChatMessagePersistService));
                     }
                 });
 
