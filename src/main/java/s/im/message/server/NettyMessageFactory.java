@@ -88,7 +88,14 @@ public class NettyMessageFactory {
         message.setMessageFrom((String) attachment.get(Constant.TRAFFIC_MESSAGE_FROM));
         message.setMessageTo((String) attachment.get(Constant.TRAFFIC_MESSAGE_TO));
         message.setContentType((Integer)attachment.get(Constant.TRAFFIC_MESSAGE_TYPE));
-        message.setClientSendTime((Date) attachment.get(Constant.TRAFFIC_MESSAGE_SEND_TIME));
+        Date sendDate = null;
+        Object o = attachment.get(Constant.TRAFFIC_MESSAGE_SEND_TIME);
+        if (o instanceof Long) {
+            sendDate = new Date((Long) o);
+        } else if (o instanceof Date) {
+            sendDate = (Date) o;
+        }
+        message.setClientSendTime(sendDate);
         message.setContent((String) nettyMessage.getBody());
         return message;
     }
