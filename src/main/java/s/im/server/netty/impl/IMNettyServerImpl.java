@@ -38,7 +38,7 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private ServerBootstrap bootstrap;
-    private ServerDataHandler nettyMessageHandler;
+//    private ServerDataHandler nettyMessageHandler;
     private ConcurrentHashMap<String, IMNettyClient> nettyClientMap = new ConcurrentHashMap<>();
 
     public IMNettyServerImpl(AddressInfo addressInfo) {
@@ -130,9 +130,9 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
 //    }
 
 
-    public void setNettyMessageHandler(ServerDataHandler nettyMessageHandler) {
-        this.nettyMessageHandler = nettyMessageHandler;
-    }
+//    public void setNettyMessageHandler(ServerDataHandler nettyMessageHandler) {
+//        this.nettyMessageHandler = nettyMessageHandler;
+//    }
 
     private String buildClientKey(AddressInfo srcHost, AddressInfo destHost) {
         return srcHost + "-->" + destHost;

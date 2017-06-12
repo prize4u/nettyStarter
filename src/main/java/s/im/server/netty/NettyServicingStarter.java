@@ -33,8 +33,8 @@ public class NettyServicingStarter implements FactoryBean<IMNettyServer> {
     private NettyServerAddressHelper nettyServerAddressHelper;
     @Autowired
     private ChatMessagePersistService clienChatMessagePersistService;
-    @Autowired
-    private ServerDataHandler nettyMessageHandler;
+//    @Autowired
+//    private ServerDataHandler nettyMessageHandler;
     private IMNettyServer nettyServer;
 //    private List<IMNettyClient> nettyClients = Lists.newArrayList();
 
@@ -136,7 +136,7 @@ public class NettyServicingStarter implements FactoryBean<IMNettyServer> {
 
     private IMNettyServer initAndStartSelfAsNettyServer(AddressInfo selfAddressInfo) throws IMServerException {
         IMNettyServer nettyServer = new IMNettyServerImpl(selfAddressInfo);
-        ((IMNettyServerImpl) nettyServer).setNettyMessageHandler(this.nettyMessageHandler);
+//        ((IMNettyServerImpl) nettyServer).setNettyMessageHandler(this.nettyMessageHandler);
         nettyServer.setWhiteList(nettyServerAddressHelper.getServerWhiteListSet());
         nettyServer.start();
         return nettyServer;
