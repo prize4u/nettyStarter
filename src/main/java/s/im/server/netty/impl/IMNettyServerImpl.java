@@ -21,6 +21,7 @@ import s.im.server.netty.api.IMNettyClient;
 import s.im.server.netty.api.IMNettyServer;
 import s.im.server.netty.codec.NettyMessageDecoder;
 import s.im.server.netty.codec.NettyMessageEncoder;
+import s.im.server.netty.handler.client.NettyMessageAckHandler;
 import s.im.server.netty.handler.server.*;
 import s.im.util.Constant;
 
@@ -89,8 +90,8 @@ public class IMNettyServerImpl extends AbstractIMNettyServer {
 //
                     ch.pipeline().addLast(new LoginAuthRespHandler(IMNettyServerImpl.this));
                     ch.pipeline().addLast("HeartBeatHandler", new HeartBeatRespHandler(IMNettyServerImpl.this));
-                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this, nettyMessageHandler));
-
+//                    ch.pipeline().addLast("ServiceRespHandler", new NettyMessageRespHandler(IMNettyServerImpl.this, nettyMessageHandler));
+                ch.pipeline().addLast("ServiceMessageAckHandler", new NettyMessageAckHandler());
             }
         });
         setServerStatus(ServerState.Starting);
